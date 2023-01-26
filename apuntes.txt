@@ -1,0 +1,1 @@
+url_for('nombre de la FUNCION de la ruta, no la ruta /ruta', parametros)

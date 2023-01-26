@@ -1,0 +1,107 @@
+. Andrew Brandon
+
+SOFTWARE ENGINEER
+
+CONTACT
+
+&% info@resumekraft.com
+
+Q 202-555-0120
+
+9 Chicago, Illinois, US
+
+in linkedin.com/resumekraft
+
+LANGUAGES
+
+English
+French
+Arabic
+German
+
+INTERESTS
+
+Football
+Cricket
+Travelling
+
+Computer Games
+
+EDUCATION
+
+MBA-IT
+
+San Jose State University
+Jun 2016 - Jun 2018
+Specialization in
+Dtawarehousing and Business
+Intelligence
+
+B.E in Computer
+Engineering
+Northeastern University
+Jul 2009 - Jun 2015
+
+SUMMARY
+
+MBA-IT graduate with almost 2 years of experience in supporting and
+enhancing business solution software. Aiming to utilize my strong technical
+and analytical skills to achieve goals of the organization.
+
+SKILLS
+
+MS SQL Server 2000 Software Documentation
+SSE Say
+Software Development Life Cycle. Software testing
+Saas SSS
+Agile SCRUM Methodology. Data collection and analysis
+| —
+EXPERIENCE
+
+Software Engineer
+Yardi Software India Private Limited Jan 2018 - Present
+
+Understood and analysed client's requirements, project execution in
+effective way by communicating with counter parts and helping
+technical team for understanding requirement.
+
+Gathered and Documented client requirements for product
+enhancement and implementation.
+
+Prepared various project documents like Functional Requirement
+Document (FRD), Software Requirement Specification (SRS), Business
+Requirement Document (BRD), Stakeholder Management and Minutes
+of Meeting in an understandable manner.
+
+Conducted 4+ levels of testing including functional, regression, user
+acceptance, and performance to verify client's needs are met.
+Possess knowledge of Software Development Life Cycle (SDLC), Agile
+SCRUM Methodology.
+
+Worked on integration of Microsoft SharePoint with Voyager (Yardi
+Product) using PowerShell scripting.
+
+Worked on SSRS reports, modification in SSRS reports to meet client
+needs.
+
+e@ Worked on SQL queries.
+e Provided input in developing and modifying systems to meet client
+
+needs.
+
+Collaborated with cross-functional development team members to
+analyse potential system solutions based on evolving client
+requirements.
+
+Conducted regression testing, analysed results and submitted
+observations to development team.
+
+Worked with project managers, developers, quality assurance to resolve
+technical issues.
+
+Partnered with team members, including Manager and Team Lead to
+maximize productive time of CSD employees (Improved up to 3.12%).
+Improved system performance by making proactive adjustments and
+resolving bugs.
+
+Reviewed requirements, specifications and technical design documents

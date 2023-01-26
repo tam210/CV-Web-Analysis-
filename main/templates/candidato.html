@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="#">{{ candidato.categoria }}</a>
+                <small class="text-muted">{{ candidato.estado }}</small>
+                <small class="text-muted">Registrado el {{ candidato.fecha_creacion.strftime('%Y-%m-%d') }}</small>
+                {% if current_user in candidato.usuarios %}                
+                    <div>
+                        <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('update_candidato', candidato_id=candidato.id) }}">Actualizar</a>
+                        <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
+                    </div>
+                {% endif %}
+            </div>
+            <h2><a class="article-title" href="#">{{ candidato.nombre }}</a></h2>
+            <p class="article-content">{{ candidato.cargo_postulante }}</p>
+            <a class="mr-2" href="#">{{ candidato.image_file }}</a>
+            <a class="mr-2" href="{{ url_for('analysis', file=candidato.image_file) }}">Generar análisis</a>
+        </div>
+    </article>
+
+    <!-- Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">¿Eliminar candidato?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <form action="{{ url_for('delete_candidato', candidato_id=candidato.id) }}" method="POST">
+                <input class="btn btn-danger" type="submit" value="Delete">
+            </form>
+            </div>
+        </div>
+        </div>
+    </div>
+{% endblock content %}
