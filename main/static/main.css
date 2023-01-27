@@ -78,3 +78,23 @@ body {
   .account-heading {
     font-size: 2.5rem;
   }
+
+  table.dataframe, .dataframe th, .dataframe td {
+    border: none;
+    border-bottom: 1px solid #C8C8C8;
+    border-collapse: collapse;
+    text-align:left;
+    padding: 10px;
+    margin-bottom: 40px;
+    font-size: 0.9em;
+  }
+
+tr:nth-child(odd)		{ 
+  background-color:#eee; 
+}
+tr:nth-child(even){ 
+  background-color:#fff; 
+}
+tr:hover{ 
+  background-color: #ade1ff;
+}

@@ -10,6 +10,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
+
 def home():
     """
     page: lo que se quiere obtener
@@ -30,16 +31,22 @@ def get_analysis():
     form=UploadFileForm()
     # user_form = UserAdd()
     if form.validate_on_submit():
-        file = form.file.data
-        ff = file.filename
-        file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
-        resumen = getRessumeDF(ff)
-
-        # user = user_form.file.data
-
-        return render_template('ressume.html', tables=[resumen.to_html(classes='data')], titles=resumen.columns.values, ff=ff, file=file)
-        #return "Archivo subido"
+        ff = form.file.data.filename
+        return redirect(url_for('analysis', file=ff))
     return render_template('get_analysis.html',title='get_analysis',form=form)
+
+
+
+@app.route("/analysis/<string:file>", methods=['GET', 'POST'])
+def analysis(file):
+    # file = form.file.data
+    # ff = file.filename
+    # resumen = getRessumeDF(ff)
+    resumen = getRessumeDF(file)
+    plot_img = url_for('static', filename='files/'+'resume_results.png')
+
+    return render_template('analysis.html', tables=[resumen.to_html(classes='data')], titles=resumen.columns.values, file=file, plot_img=plot_img)
+
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -47,7 +54,6 @@ def register():
 
     if current_user.is_authenticated:
         return redirect(url_for('home'))
-
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_paswword = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -82,7 +88,7 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
-    # image_file=url_for('static', filename='files/'+current_user.image_file)
+    #image_file=url_for('static', filename='files/'+current_user.image_file)
     return render_template('account.html', title='Account')
 
 
@@ -92,10 +98,7 @@ def new_post():
     form = CandidateForm()
     if form.validate_on_submit():
         cand = Candidato(nombre=form.name.data, categoria=form.category.data, estado=form.state.data, image_file=form.file.data, cargo_postulante=form.charge.data)
-
-
         current_user.candidatos.append(cand)
-
         db.session.add(cand)
         db.session.add(current_user)
         db.session.commit()
@@ -110,19 +113,8 @@ def new_post():
 def candidato(candidato_id):
     #dame el candidato y si no existe, retorna 404 (no existe pagina)
     candidato = Candidato.query.get_or_404(candidato_id)
-    return render_template('candidato.html', title=candidato_id, candidato=candidato)
-
-
-
-@app.route("/analysis/<string:file>", methods=['GET', 'POST'])
-def analysis(file):
-    # file = form.file.data
-    # ff = file.filename
-    # resumen = getRessumeDF(ff)
-    resumen = getRessumeDF(file)
-
-    return render_template('analysis.html', tables=[resumen.to_html(classes='data')], titles=resumen.columns.values, file=file)
-
+    image_file=url_for('static', filename='files/'+candidato.image_file)
+    return render_template('candidato.html', title=candidato_id, candidato=candidato, image_file=image_file)
 
 
 @app.route("/post/<int:candidato_id>/update", methods=['GET', 'POST'])
@@ -157,7 +149,6 @@ def update_candidato(candidato_id):
     
     return render_template('create_post.html', title='Actualizar candidato',
                              form=form, legend='Actualizar candidato')
-
 
 @app.route("/post/<int:candidato_id>/delete", methods=['GET', 'POST'])
 @login_required

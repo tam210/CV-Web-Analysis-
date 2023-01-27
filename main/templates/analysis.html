@@ -1,12 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
-    {% for table in tables %}
-                {{ titles[loop.index] }}
-                {{ table|safe }}
 
-                <br>Datos del archivo
-                <br>Nombre del archivo: {{file}}
+    <h5 class="mb-3"> Ranking de áreas dominantes</h5>
+    {% for table in tables %}
+        {{ table|safe }}    
     {% endfor %}
-    
+    <div >
+        <div class="col-md-12 px-0 mt-5">
+            <h5 class="mb-3">Representación gráfica</h5>
+            <img src="{{ plot_img }}" class="img-fluid">
+        </div>
+    </div>
+
+    <h6 class="mt-5">Nombre del archivo analizado: {{file}}</h6>
+
 {% endblock content %}
  
