@@ -8,15 +8,21 @@ def load_user(user_id):
 
 
 class Categoria(db.Model):
-    nombre = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    
+    candidatos_cat = db.relationship('Candidato', backref='categoria', lazy='dynamic')
+
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Categoria('{self.nombre}')"
+        return f"Categoria('{self.name}')"
 
 
 class Candidato(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    categoria = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False) #
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id')) #
+    #categoria = db.Column(db.Integer, nullable=False) #
+    # category =db.relationship('Categoria')
     nombre = db.Column(db.String(50), nullable=False)
     estado = db.Column(db.String(50), nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
@@ -26,13 +32,13 @@ class Candidato(db.Model):
     #usuarios = db.relationship('Usuario', backref='author', lazy=True)
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Candidato('{self.id}', '{self.categoria}', '{self.nombre}', '{self.estado}', '{self.image_file}', '{self.cargo_postulante}')"
+        return f"Candidato('{self.id}', '{self.categoria_id}', '{self.nombre}', '{self.estado}', '{self.image_file}', '{self.cargo_postulante}')"
 
 
 
 categoria_usuario = db.Table('categoria_usuario',
                             db.Column('usuario_id', db.Integer, db.ForeignKey('usuario.id')),
-                            db.Column('categoria', db.Integer, db.ForeignKey('categoria.nombre'))
+                            db.Column('categoria', db.Integer, db.ForeignKey('categoria.name'))
                             )
 
 candidato_usuario = db.Table('candidato_usuario',

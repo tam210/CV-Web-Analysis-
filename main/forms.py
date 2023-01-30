@@ -1,14 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, FileField, SubmitField, SelectField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from main.models import Usuario
+from main.models import Usuario, Categoria
 
 
 #Los formularios en HTML se harán con la sintaxis de flask:
 #Formulario de registro
 class RegistrationForm(FlaskForm):
-    #DataRequired: Que se ingrese un valor
-    #Length: Que tenga intervalo de cantidad de caracteres
     name = StringField('Nombre', 
                             validators=[DataRequired()])
     username = StringField('Username',
@@ -49,3 +47,13 @@ class CandidateForm(FlaskForm):
     charge = TextAreaField('Descripción', validators=[DataRequired()])
     file = FileField("Archivo")
     submit = SubmitField('Enviar')
+
+class CategoryForm(FlaskForm):
+    name = StringField('Nombre', validators=[DataRequired()])
+    submit = SubmitField('Enviar')
+
+    #El formato del nombre de la función para que automáticamente valide es: 'validate_[nombre de la variable a validar]'
+    def validate_name(self, name):
+        cat = Categoria.query.filter_by(name=name.data).first()
+        if cat:
+            raise ValidationError('La categoría ingresada ya existe.')

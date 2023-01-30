@@ -3,7 +3,7 @@ import glob
 import re
 import string
 import pandas as pd
-import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'
@@ -108,7 +108,8 @@ def getRessumeDF(file):
     sum = pd.DataFrame({'Área':terms.keys(), 'Puntaje': scores}).sort_values(by='Puntaje', ascending=False)
 
     pie = plt.figure(figsize=(5,5))
-    plt.pie(sum['Puntaje'], labels=sum.index, explode = (0.1,0,0,0,0,0), autopct='%1.0f%%',shadow=True,startangle=90)
+    plt.pie(sum['Puntaje'], labels=sum.index, autopct='%1.0f%%',shadow=True,startangle=90)
+    # plt.pie(sum['Puntaje'], labels=sum.index, explode = (0.1,0,0,0,0,0), autopct='%1.0f%%',shadow=True,startangle=90)
     plt.title('Áreas más desarrolladas')
     plt.axis('equal')
     #plt.show()

@@ -1,5 +1,5 @@
 from flask import render_template, url_for, flash, redirect, request, abort
-from main.forms import RegistrationForm, LoginForm, UploadFileForm, CandidateForm
+from main.forms import RegistrationForm, LoginForm, UploadFileForm, CandidateForm, CategoryForm
 from werkzeug.utils import secure_filename
 import os
 from main.analysis import getRessumeDF
@@ -162,3 +162,37 @@ def delete_candidato(candidato_id):
     db.session.commit()
     flash('Usuario eliminado', 'success')
     return redirect(url_for('home'))
+
+@app.route("/category/new", methods=['GET', 'POST'])
+def create_category():
+    form = CategoryForm()
+    if form.validate_on_submit():
+        category = Categoria(name=form.name.data)
+        db.session.add(category)
+        db.session.commit()
+        flash('Categoría registrado', 'success')
+        return redirect(url_for('home'))
+    return render_template('new_category.html', title='Nueva Categoría', 
+                            form=form, legend='Ingresar nueva categoría')
+
+
+@app.route("/categories", methods=['GET', 'POST'])
+def categorias():
+    categorias = Categoria.query.all()
+
+    return render_template('categories.html', title='Categorías', 
+                            categorias=categorias, legend='Categorías existentes')
+
+@app.route("/users", methods=['GET', 'POST'])
+def users():
+    users = Usuario.query.all()
+
+    return render_template('users.html', title='Usuarios', 
+                            users=users, legend='Usuarios existentes')
+
+# @app.route("/categories/<int:categoria_id>", methods=['GET', 'POST'])
+# def categorias_candidato(categoria_id):
+#     candidatos = Candidato.query.get_or_404(categoria_id)
+#     if current_user not in candidato.usuarios:
+#         abort(403)
+#     return redirect(url_for('home'))
