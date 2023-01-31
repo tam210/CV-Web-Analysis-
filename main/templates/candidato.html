@@ -4,7 +4,7 @@
         <div class="media-body">
             <div class="article-metadata">
                 <a class="mr-2" href="#">{{ candidato.categoria.name }}</a>
-                <small class="text-muted">{{ candidato.estado }}</small>
+                <small class="text-muted">{{ candidato.estado.name }}</small>
                 <small class="text-muted ml-2">Registrado el {{ candidato.fecha_creacion.strftime('%Y-%m-%d') }}</small>
                 {% if current_user in candidato.usuarios %}                
                     <div>
