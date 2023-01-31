@@ -34,25 +34,14 @@ terms = {'Quality/Six Sigma':['black belt','capability analysis','control charts
         'Healthcare':['adverse events','care','clinic','cphq','ergonomics','healthcare',
                       'health care','health','hospital','human factors','medical','near misses',
                       'patient','reporting system']}
-                      #Asterisco (*) para solo leer las imagenes .jpg
-#images = glob.glob(r"docs/*.jpg")
 
 def getRessumeDF(file):
-    #images = glob.glob("pdf-jpgs/cv-6.jpg")
     ruta = "main/static/files/"+file
     images = glob.glob(ruta)
-
     image_text = ""
-    #images = glob.glob("static/files/{file}")
     for img in images:
         image_text = pytesseract.image_to_string(img)
-        #escribo el archivo del mismo nombre
-        # with open(f'{img}.txt', 'w') as the_file:
-        #     the_file.write(image_text)
-
-    #print(image_text)
     image_text = image_text.lower() #minúsculas
-
     image_text = re.sub(r'\d+','',image_text) #quito números
     image_text = image_text.translate(str.maketrans('','',string.punctuation))
     text = image_text
@@ -109,9 +98,7 @@ def getRessumeDF(file):
 
     pie = plt.figure(figsize=(5,5))
     plt.pie(sum['Puntaje'], labels=sum.index, autopct='%1.0f%%',shadow=True,startangle=90)
-    # plt.pie(sum['Puntaje'], labels=sum.index, explode = (0.1,0,0,0,0,0), autopct='%1.0f%%',shadow=True,startangle=90)
     plt.title('Áreas más desarrolladas')
     plt.axis('equal')
-    #plt.show()
     pie.savefig('main/static/files/resume_results.png')
     return sum

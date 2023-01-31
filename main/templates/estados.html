@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <h3 class="mb-3">Estados registrados</h3>
+    <div class="content-section">    
+        {% for estado in estados %}
+            <p>{{ estado.name }}</p>
+        {% endfor %}
+    </div>
+
+    <a href="/estados/new" class="link-secondary">Agregar estado</a>
+{% endblock content %}
+ 

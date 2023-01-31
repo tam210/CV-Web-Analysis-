@@ -1,1 +1,14 @@
 url_for('nombre de la FUNCION de la ruta, no la ruta /ruta', parametros)
+- según el área que se muestre el cuadro de resumen
+	e.g: Área: Informática
+	     Indicadores del DF: Gestión de proyectos 
+			 	 Ingeniería de software
+ 			 	 Dominio de lenguajes
+			 	 Capacidad de aprendizaje
+				 Creatividad
+
+Muchos postulantes pueden POSTULAR a un mismo empleo. Falta hacer ese filtro
+Código de trabajo
+Ej Julio posutla al empleo ID 89
+
+otro problema: combinacion de ingles con español xd
