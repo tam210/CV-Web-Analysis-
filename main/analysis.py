@@ -42,21 +42,34 @@ def getEmail(texto):
         email = re.search(r'[\w\.-]+@[a-z0-9\.-]+', texto)
     return email
 
+def getPhoneNumber2(texto):
+    try:
+        phone = re.findall(r'+?(?[1-9][0-9 .-()]{8,}[0-9]', texto)
+    except AttributeError:
+        phone = re.search(r'+?(?[1-9][0-9 .-()]{8,}[0-9]', texto)
+    return phone
+
+def getPhoneNumber(text):
+    e = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', text)
+    return e[0]
+
 def getText(file):
     ruta = "main/static/files/"+file
     images = glob.glob(ruta)
     image_text = ""
     for img in images:
         image_text = pytesseract.image_to_string(img)
-    image_text = re.sub(r'\d+','',image_text) #quito números
+
     image_text = image_text.replace('\n',' ')
     image_text = image_text.replace('  ',' ')
+    text_phone = image_text    
+    image_text = re.sub(r'\d+','',image_text) #quito números
     image_text_email = image_text
     image_text = image_text.lower() #####
     image_text = image_text.translate(str.maketrans('','',string.punctuation))
     text = image_text
 
-    return text, image_text_email
+    return text, image_text_email, text_phone
 
 def getRessumeDF(text):
     # ruta = "main/static/files/"+file
@@ -134,9 +147,17 @@ def getRessumeDF(text):
 
     return sum
 
+def getPhone(string):
+    phone = ''
+    phoneRegEx = re.compile('\"tel\:[\(\)\-0-9\ ]{1,}\"')
+    m = phoneRegEx.search(string)
+    if m:
+        phone = m.group(0)[5:-1]
+    return phone
+
 def obtenerDF_Email(file):
-    text, text_email = getText(file)
+    text, text_email, text_phone = getText(file)
     dataframe = getRessumeDF(text)
     email = getEmail(text_email)
-
-    return dataframe, email
+    phone = getPhoneNumber(text_phone)
+    return dataframe, email, phone

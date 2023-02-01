@@ -51,10 +51,10 @@ def analysis(file):
     # file = form.file.data
     # ff = file.filename
     # resumen = getRessumeDF(file)
-    ressume, email = obtenerDF_Email(file)
+    ressume, email, phone = obtenerDF_Email(file)
     plot_img = url_for('static', filename='files/'+'resume_results.png')
 
-    return render_template('analysis.html', tables=[ressume.to_html(classes='data')], titles=ressume.columns.values, file=file, plot_img=plot_img, email=email)
+    return render_template('analysis.html', tables=[ressume.to_html(classes='data')], titles=ressume.columns.values, file=file, plot_img=plot_img, email=email, phone=phone)
 
 
 
@@ -129,14 +129,8 @@ def create_candidate():
             if cand.file: #si tiene imagen
                 _, email = obtenerDF_Email(ff)
                 if email:
-                    if email in cand.emails:
-                        print("--------TA REGISTRADO---------------")
-                        print(email)
-                        print(em)
-                        print("-----------------------")
-                        print(cand.emails)
-                    else:
-                        print("-------NO -TA REGISTRADO---------------")
+                    if email not in cand.emails:
+                        print("-------NO ESTÁ REGISTRADO-----------")
                         em = E_mail(name = email, candidate_id=cand.id)
                         db.session.add(em)
             db.session.add(cand)
@@ -167,8 +161,6 @@ def candidate(candidate_id):
 def update_candidate(candidate_id):
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
     candidate = Candidate.query.get_or_404(candidate_id)
-    print(candidate.emails)
-    print(candidate.phones)
     #si el registro no fue hecho por el usuario logueado
     if current_user not in candidate.users:
         abort(403)
@@ -193,8 +185,6 @@ def update_candidate(candidate_id):
         if form.phone.data:
             ph = Phone(name=form.phone.data, candidate_id=candidate.id)
             db.session.add(ph)
-        print("------------------------")
-        print(candidate)
         db.session.commit()
         #print(candidate)
         flash('Información del candidato actualizada', 'success')
@@ -207,7 +197,6 @@ def update_candidate(candidate_id):
         form.name.data = candidate.name
         form.category.data = candidate.category
         form.status.data = candidate.status
-        print(candidate)
 
         form.description.data = candidate.description
         form.file.data = candidate.file
@@ -284,13 +273,10 @@ def create_offer():
                         status_id=form.status.data.id, 
                         description=form.description.data,
                         user_id = current_user.id)
-        print(oferta)
-        print(form.category.data.name)
 
         db.session.add(oferta)
         db.session.commit()
         flash('Oferta registrada', 'success')
-        print(Offer.query.all())
         return redirect(url_for('offers'))
 
     # image_file=url_for('static', filename='files/'+current_user.image_file)
@@ -300,7 +286,6 @@ def create_offer():
 @app.route("/offers", methods=['GET', 'POST'])
 def offers():
     offers = Offer.query.all()
-    print(offers)
     return render_template('offers.html', title='Ofertas', 
                             offers=offers, legend='Ofertas')
 
