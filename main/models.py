@@ -4,89 +4,126 @@ from datetime import datetime
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Usuario.query.get(int(user_id))
+    return User.query.get(int(user_id))
 
-class Estado(db.Model):
+class Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     classification = db.Column(db.String(50), nullable=False)
     #Foreign key (1,N) Estado - Oferta
-    ofertas = db.relationship('Oferta', backref='estado') #fk
+    offers = db.relationship('Offer', backref='status') #fk
     #Foreign key (1, N) Estado - Candidato
-    candidatos_est = db.relationship('Candidato', backref='estado', lazy='dynamic')
+    candidates_status = db.relationship('Candidate', backref='status', lazy='dynamic')
     #Similar al to_string()
     def __repr__(self): 
-        return f"Estado('{self.name}')"
+        return f"Status ('{self.name}', '{self.classification}' )"
 
 
 
-class Categoria(db.Model):
+class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     #Foreign key (1, N) Categoria - Ofertas
-    ofertas = db.relationship('Oferta', backref='categoria') #fk
+    offers = db.relationship('Offer', backref='category', lazy='dynamic') #fk
     #Foreign key (1, N) Categoria - Candidato
-    candidatos_cat = db.relationship('Candidato', backref='categoria', lazy='dynamic')
+    candidates_cat = db.relationship('Candidate', backref='category', lazy='dynamic')
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Categoria('{self.name}', '{self.id}')"
+        return f"Category ('{self.name}', '{self.id}')"
 
 
-class Candidato(db.Model):
+class Candidate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-    cargo_postulante = db.Column(db.String(50), nullable=False)
-    fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    type = db.Column(db.String(50), nullable = False)
+    name = db.Column(db.String(50), nullable=False)
+    file = db.Column(db.String(20), nullable=False, default='default.jpg')
+    description = db.Column(db.String(50), nullable=False)
+    #email = db.Column(db.String(50), nullable=True)
+    # phone = db.Column(db.Integer, nullable=True)
+    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'))
-    estado_id = db.Column(db.Integer, db.ForeignKey('estado.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    #Foreign key (1, N) Candidato - Email
+    emails = db.relationship('E_mail', backref='candidate', lazy='dynamic') #fk
+    phones = db.relationship('Phone', backref='candidate', lazy='dynamic') #fk
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Candidato('{self.id}', '{self.categoria_id}', '{self.nombre}', '{self.estado_id}', '{self.image_file}', '{self.cargo_postulante}')"
+        return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}')"
 
 
 
-categoria_usuario = db.Table('categoria_usuario',
-                            db.Column('usuario_id', db.Integer, db.ForeignKey('usuario.id')),
-                            db.Column('categoria', db.Integer, db.ForeignKey('categoria.name'))
+category_user = db.Table('category_user',
+                            db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                            db.Column('category_id', db.Integer, db.ForeignKey('category.id'))
                             )
 
-candidato_usuario = db.Table('candidato_usuario',
-                            db.Column('usuario_id', db.Integer, db.ForeignKey('usuario.id')),
-                            db.Column('candidato_id', db.Integer, db.ForeignKey('candidato.id'))
+candidate_user = db.Table('candidate_user',
+                            db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                            db.Column('candidate_id', db.Integer, db.ForeignKey('candidate.id'))
                             )
                             
-oferta_candidato = db.Table('oferta_candidato',
-                            db.Column('oferta_id', db.Integer, db.ForeignKey('oferta.id')),
-                            db.Column('candidato_id', db.Integer, db.ForeignKey('candidato.id'))
+offer_candidate = db.Table('offer_candidate',
+                            db.Column('offer_id', db.Integer, db.ForeignKey('offer.id')),
+                            db.Column('candidate_id', db.Integer, db.ForeignKey('candidate.id'))
                             )
 
-class Usuario(db.Model, UserMixin):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
-    clave = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
+    type = db.Column(db.String(50), nullable = False)
+    name = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.String(50), nullable=False)
+    #email = db.Column(db.String(50), nullable=False)
     username = db.Column(db.Integer, unique=True, nullable=False)
-    fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    candidatos = db.relationship('Candidato', secondary=candidato_usuario, backref='usuarios')
-    categorias = db.relationship('Categoria', secondary=categoria_usuario, backref='usuarios')
+    candidates = db.relationship('Candidate', secondary=candidate_user, backref='users')
+    categories = db.relationship('Category', secondary=category_user, backref='users')
+
+    email = db.Column(db.String(50), db.ForeignKey('e_mail.id'))
+
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Usuario('{self.id}', '{self.nombre}', '{self.clave}', '{self.email}', '{self.username}')"
+        return f"User('{self.id}', '{self.name}', '{self.password}', '{self.email}', '{self.username}', '{self.creation_date}', '{self.type}')"
 
-class Oferta(db.Model):
+class Offer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
-    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id')) #
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id')) #creador del empleo
-    estado_id = db.Column(db.Integer, db.ForeignKey('estado.id'))
-    descripcion = db.Column(db.String(50), nullable=False)
-    fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    name = db.Column(db.String(50), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id')) #
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creador del empleo
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    description = db.Column(db.String(50), nullable=False)
+    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    candidatos = db.relationship('Candidato', secondary=oferta_candidato, backref='ofertas')
+    candidates = db.relationship('Candidate', secondary=offer_candidate, backref='offers')
 
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Oferta('{self.id}', '{self.nombre}', '{self.categoria_id}', '{self.usuario_id}', '{self.estado_id}', '{self.descripcion}', '{self.fecha_creacion}')"
+        return f"Offer('{self.id}', '{self.name}', '{self.category_id}', '{self.user_id}', '{self.status_id}', '{self.description}', '{self.creation_date}')"
+
+class E_mail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id')) #fk
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    user_id = db.relationship('User', backref='e_mail', lazy='dynamic') #fk
+
+    
+    def __repr__(self): ##como nuestro objeto es impreso
+        return f"Email('{self.id}', '{self.name}', '{self.candidate_id}')"
+
+class Type(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nametype = db.Column(db.String(50), nullable=False, unique=True)
+
+    def __repr__(self): ##como nuestro objeto es impreso
+        return f"Phone('{self.id}', '{self.nametype}')"
+
+
+class Phone(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Integer, nullable=False, unique=True)
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id')) #
+
+    def __repr__(self): ##como nuestro objeto es impreso
+        return f"Phone('{self.id}', '{self.name}', '{self.candidate_id}')"

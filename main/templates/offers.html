@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h3>Ofertas registradas</h3>
+    <h6 class="text-right font-weight-light">
+        <a href="{{ url_for('create_offer') }}">Crear oferta</a>
+    </h6>
+    {% for offer in offers %}
+        <article class="media content-section">
+            <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="#">{{ offer.category.name }}</a>
+                <small class="text-muted">{{ offer.status.name }}</small>
+                <small class="text-muted ml-2">Registrado el {{ offer.creation_date.strftime('%Y-%m-%d') }}</small>
+            </div>
+            <h2><a class="article-title" href="{{ url_for('offer', offer_id=offer.id) }}">{{ offer.name }}</a></h2>
+            <p class="article-content">{{ offer.description }}</p>
+        </div>
+        </article>
+    {% endfor %}
+
+{% endblock content %} 
+

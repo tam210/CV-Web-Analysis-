@@ -2,16 +2,23 @@ from flask import render_template, url_for, flash, redirect, request, abort
 from main.forms import RegistrationForm, LoginForm, UploadFileForm, CandidateForm, CategoryForm, StateForm, OfferForm
 from werkzeug.utils import secure_filename
 import os
-from main.analysis import getRessumeDF
+from main.analysis import obtenerDF_Email
 from main import app, db, bcrypt
-from main.models import Candidato, Categoria, Usuario, Estado, Oferta
+from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone
 from sqlalchemy.exc import SQLAlchemyError
 
 
 from flask_login import login_user, current_user, logout_user, login_required
 
+NAMETYPE_USER_USER = 'Usuario'
+NAMETYPE_USER_CANDIDATE = 'Candidato'
+
+CLASSIFICATION_STATUS_OFFER = 'Trabajo'
+CLASSIFICATION_STATUS_CANDIDATE = 'Candidato'
+
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
+@app.route("/candidates", methods=['GET', 'POST'])
 
 def home():
     """
@@ -20,9 +27,9 @@ def home():
     type: el tipo que debe tener la página, así se evitan strings u otro
     """
     page = request.args.get('page', 1, type=int) #default=1
-    #candidatos = Candidato.query.all()
-    candidatos = Candidato.query.paginate(page=page, per_page=5)
-    return render_template('home.html',candidatos=candidatos)
+    #Candidates = Candidate.query.all()
+    candidates = Candidate.query.paginate(page=page, per_page=5)
+    return render_template('home.html',candidates=candidates)
 
 @app.route("/ressume", methods=['GET', 'POST'])
 def ressume():
@@ -35,7 +42,7 @@ def get_analysis():
     if form.validate_on_submit():
         ff = form.file.data.filename
         return redirect(url_for('analysis', file=ff))
-    return render_template('get_analysis.html',title='get_analysis',form=form)
+    return render_template('get_analysis.html',title='Obtener análisis',form=form)
 
 
 
@@ -43,11 +50,11 @@ def get_analysis():
 def analysis(file):
     # file = form.file.data
     # ff = file.filename
-    # resumen = getRessumeDF(ff)
-    resumen = getRessumeDF(file)
+    # resumen = getRessumeDF(file)
+    ressume, email = obtenerDF_Email(file)
     plot_img = url_for('static', filename='files/'+'resume_results.png')
 
-    return render_template('analysis.html', tables=[resumen.to_html(classes='data')], titles=resumen.columns.values, file=file, plot_img=plot_img)
+    return render_template('analysis.html', tables=[ressume.to_html(classes='data')], titles=ressume.columns.values, file=file, plot_img=plot_img, email=email)
 
 
 
@@ -59,10 +66,10 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_paswword = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = Usuario(nombre=form.name.data, 
-                        clave=hashed_paswword, 
+        user = User(name=form.name.data, 
+                        password=hashed_paswword, 
                         email=form.email.data, 
-                        username=form.username.data)
+                        username=form.username.data, type=NAMETYPE_USER_USER)
         db.session.add(user)
         db.session.commit()
         flash(f'Tu cuenta ha sido creada, {form.username.data}!', 'success')
@@ -76,8 +83,8 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user = Usuario.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.clave, form.password.data):
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next') #args: diccionario
             return redirect(next_page) if next_page else redirect(url_for('home'))
@@ -97,23 +104,30 @@ def account():
     return render_template('account.html', title='Account')
 
 
-@app.route("/post/new", methods=['GET', 'POST'])
+@app.route("/candidates/new", methods=['GET', 'POST'])
 @login_required
-def new_candidate():
+def create_candidate():
     form = CandidateForm()
-    form.category.query = Categoria.query.filter(Categoria.id >=0)
-    form.state.query = Estado.query.filter(Estado.classification=='Candidato')
+    form.category.query = Category.query.filter(Category.id >=0)
+    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
     if form.validate_on_submit():
         try:
-            cand = Candidato(nombre=form.name.data,
-                                categoria_id=form.category.data.id, 
-                                estado_id=form.state.data.id, 
-                                image_file=form.file.data, 
-                                cargo_postulante=form.charge.data)
-            print(cand)
-            current_user.candidatos.append(cand)
+            cand = Candidate(name=form.name.data,
+                                category_id=form.category.data.id, 
+                                status_id=form.status.data.id, 
+                                file=form.file.data, 
+                                description=form.description.data, type=NAMETYPE_USER_CANDIDATE)
+            if form.email.data:
+                em = E_mail(name=form.email.data, candidate_id=cand.id)
+                db.session.add(em)
+            if form.phone.data:
+                ph = Phone(name=form.phone.data, candidate_id=cand.id)
+                db.session.add(ph)
+            current_user.candidates.append(cand)
+            # if cand.image_file: #si tiene imagen
+            #     _, email = obtenerDF_Email(cand.image_file)
             db.session.add(cand)
-            db.session.add(current_user)
+            #db.session.add(current_user)
             db.session.commit()
             flash('Candidato registrado', 'success')
             return redirect(url_for('home'))
@@ -122,62 +136,81 @@ def new_candidate():
             error = str(e.__dict__['orig'])
         return error
         
-    # image_file=url_for('static', filename='files/'+current_user.image_file)
-    return render_template('create_post.html', title='New Post', 
-                            form=form, legend='Registrar candidato')
+    return render_template('new_candidate.html', title='Nuevo Candidato', 
+                            form=form, legend='Registrar Candidato')
 
 
-@app.route("/post/<int:candidato_id>", methods=['GET', 'POST'])
-def candidato(candidato_id):
-    #dame el candidato y si no existe, retorna 404 (no existe pagina)
+@app.route("/candidates/<int:candidate_id>", methods=['GET', 'POST'])
+def candidate(candidate_id):
+    #dame el Candidate y si no existe, retorna 404 (no existe pagina)
      
-    candidato = Candidato.query.get_or_404(candidato_id)
-    image_file=url_for('static', filename='files/'+candidato.image_file)
-    return render_template('candidato.html', title=candidato_id, candidato=candidato, image_file=image_file)
+    candidate = Candidate.query.get_or_404(candidate_id)
+    image_file=url_for('static', filename='files/'+candidate.file)
+    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file)
 
 
-@app.route("/post/<int:candidato_id>/update", methods=['GET', 'POST'])
+@app.route("/candidates/<int:candidate_id>/update", methods=['GET', 'POST'])
 @login_required
-def update_candidato(candidato_id):
-    #dame el candidato y si no existe, retorna 404 (no existe pagina)
-    candidato = Candidato.query.get_or_404(candidato_id)
+def update_candidate(candidate_id):
+    #dame el Candidate y si no existe, retorna 404 (no existe pagina)
+    candidate = Candidate.query.get_or_404(candidate_id)
+    print(candidate.emails)
+    print(candidate.phones)
     #si el registro no fue hecho por el usuario logueado
-    if current_user not in candidato.usuarios:
+    if current_user not in candidate.users:
         abort(403)
     form = CandidateForm() #creo nuevo formulario
+        
+    form.category.query = Category.query.filter(Category.id >=0)
+    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
 
     if form.validate_on_submit():
-        candidato.nombre = form.name.data 
-        candidato.categoria = form.category.data
-        candidato.estado = form.state.data
-        candidato.cargo_postulante = form.charge.data
-        candidato.image_file = form.file.data
+        candidate.name = form.name.data 
+        # candidate.category = form.category.data
+        # candidate.status = form.status.data
+
+        
+        # candidate.emails = form.email.data.id
+        # candidate.phones = form.phone.data
+        candidate.description = form.description.data
+        candidate.file = form.file.data
+        if form.email.data:
+            em = E_mail(name=form.email.data, candidate_id=candidate.id)
+            db.session.add(em)
+        if form.phone.data:
+            ph = Phone(name=form.phone.data, candidate_id=candidate.id)
+            db.session.add(ph)
+        print("------------------------")
+        print(candidate)
         db.session.commit()
+        #print(candidate)
         flash('Información del candidato actualizada', 'success')
-        return redirect(url_for('candidato', candidato_id=candidato.id))
+        return redirect(url_for('candidate', candidate_id=candidate.id))
     #cuando se carga la pagina, se carga con info ya cargada del sistema.
     #cuando el sistema quiere cargar la pagina, lo pide a traves del
     # 'GET', por lo que cuando se quiera cargar la pagina debemos
     # definir la info predeterminada a mostrar
     elif request.method == 'GET': #cuando cargamos/redirreciona la pagina
-        form.name.data = candidato.nombre
-        form.category.data = candidato.categoria
-        form.state.data = candidato.estado
-        form.charge.data = candidato.cargo_postulante
-        form.file.data = candidato.image_file
+        form.name.data = candidate.name
+        form.category.data = candidate.category
+        form.status.data = candidate.status
+        print(candidate)
+
+        form.description.data = candidate.description
+        form.file.data = candidate.file
     
-    return render_template('create_post.html', title='Actualizar candidato',
+    return render_template('new_candidate.html', title='Actualizar candidato',
                              form=form, legend='Actualizar candidato')
 
-@app.route("/post/<int:candidato_id>/delete", methods=['GET', 'POST'])
+@app.route("/candidates/<int:candidate_id>/delete", methods=['GET', 'POST'])
 @login_required
-def delete_candidato(candidato_id):
-    #dame el candidato y si no existe, retorna 404 (no existe pagina)
-    candidato = Candidato.query.get_or_404(candidato_id)
+def delete_candidate(candidate_id):
+    #dame el Candidate y si no existe, retorna 404 (no existe pagina)
+    candidate = Candidate.query.get_or_404(candidate_id)
     #si el registro no fue hecho por el usuario logueado
-    if current_user not in candidato.usuarios:
+    if current_user not in candidate.usuarios:
         abort(403)
-    db.session.delete(candidato)
+    db.session.delete(candidate)
     db.session.commit()
     flash('Usuario eliminado', 'success')
     return redirect(url_for('home'))
@@ -186,83 +219,80 @@ def delete_candidato(candidato_id):
 def create_category():
     form = CategoryForm()
     if form.validate_on_submit():
-        category = Categoria(name=form.name.data)
+        category = Category(name=form.name.data)
         db.session.add(category)
         db.session.commit()
         flash('Categoría registrado', 'success')
-        return redirect(url_for('categorias'))
+        return redirect(url_for('categories'))
     return render_template('new_category.html', title='Nueva Categoría', 
                             form=form, legend='Ingresar nueva categoría')
 
 @app.route("/categories", methods=['GET', 'POST'])
-def categorias():
-    categorias = Categoria.query.all()
+def categories():
+    categories = Category.query.all()
     return render_template('categories.html', title='Categorías', 
-                            categorias=categorias, legend='Categorías existentes')
+                            categories=categories, legend='Categorías existentes')
 
 @app.route("/users", methods=['GET', 'POST'])
 def users():
-    users = Usuario.query.all()
+    users = User.query.all()
     return render_template('users.html', title='Usuarios', 
                             users=users, legend='Usuarios existentes')
 
-@app.route("/estados", methods=['GET', 'POST'])
-def estados():
-    estados = Estado.query.all()
-    return render_template('estados.html', title='Estados', 
-                            estados=estados, legend='Estados')
+@app.route("/status", methods=['GET', 'POST'])
+def status():
+    statuses = Status.query.all()
+    return render_template('status.html', title='Estados', 
+                            statuses=statuses, legend='Estados')
 
-@app.route("/estados/new", methods=['GET', 'POST'])
-def create_state():
+@app.route("/status/new", methods=['GET', 'POST'])
+def create_status():
     form = StateForm()
     if form.validate_on_submit():
-        state = Estado(name=form.name.data, classification=form.classification.data)
+        state = Status(name=form.name.data, 
+                        classification=form.classification.data)
         db.session.add(state)
         db.session.commit()
         flash('Estado registrado', 'success')
-        return redirect(url_for('estados'))
-    return render_template('new_state.html', title='Nuevo estado', 
+        return redirect(url_for('status'))
+    return render_template('new_status.html', title='Nuevo estado', 
                             form=form, legend='Ingresar nuevo estado')
 
-@app.route("/ofertas/new", methods=['GET', 'POST'])
+@app.route("/offers/new", methods=['GET', 'POST'])
 @login_required
-def nueva_oferta():
+def create_offer():
     form = OfferForm()
-    form.category.query = Categoria.query.filter(Categoria.id >=0)
-    form.state.query = Estado.query.filter(Estado.classification=='Trabajo')
+    form.category.query = Category.query.filter(Category.id >=0)
+    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_OFFER)
     #estado convocatoria: abierta o cerrada
     if form.validate_on_submit():
-        oferta = Oferta(nombre=form.name.data, 
-                        categoria_id=form.category.data.id, 
-                        estado_id=form.state.data.id, 
-                        descripcion=form.description.data,
-                        usuario_id = current_user.id)
-        print("ASDASDASDASDASDSD-AD-A-D")
+        oferta = Offer(name=form.name.data, 
+                        category_id=form.category.data.id, 
+                        status_id=form.status.data.id, 
+                        description=form.description.data,
+                        user_id = current_user.id)
         print(oferta)
         print(form.category.data.name)
-        print("ASDASDASDASDASDSD-AD-A-D")
 
         db.session.add(oferta)
-
-
         db.session.commit()
         flash('Oferta registrada', 'success')
-        print(Oferta.query.all())
-        return redirect(url_for('ofertas'))
+        print(Offer.query.all())
+        return redirect(url_for('offers'))
 
     # image_file=url_for('static', filename='files/'+current_user.image_file)
-    return render_template('nueva_oferta.html', title='Nueva oferta', 
+    return render_template('new_offer.html', title='Nueva oferta', 
                             form=form, legend='Registrar oferta')
 #home 2
-@app.route("/ofertas", methods=['GET', 'POST'])
-def ofertas():
-    ofertas = Oferta.query.all()
-    print(ofertas)
-    return render_template('ofertas.html', title='Ofertas', 
-                            ofertas=ofertas, legend='Ofertas')
+@app.route("/offers", methods=['GET', 'POST'])
+def offers():
+    offers = Offer.query.all()
+    print(offers)
+    return render_template('offers.html', title='Ofertas', 
+                            offers=offers, legend='Ofertas')
 
-@app.route("/ofertas/<int:oferta_id>", methods=['GET', 'POST'])
-def oferta(oferta_id):
-    oferta = Oferta.query.get_or_404(oferta_id)
-    return render_template('oferta.html', title=oferta_id, oferta=oferta)
+@app.route("/offers/<int:offer_id>", methods=['GET', 'POST'])
+def offer(offer_id):
+    offer = Offer.query.get_or_404(offer_id)
+    return render_template('offer.html', title=offer_id, offer=offer)
 

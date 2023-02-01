@@ -31,7 +31,6 @@
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
               {% if current_user.is_authenticated %}
-              <a class="nav-item nav-link" href="/post/new">Agregar candidato</a>
               <a class="nav-item nav-link" href="/account">Mi cuenta</a>
               <a class="nav-item nav-link" href="/logout">Cerrar sesión</a>
               {% else %}
@@ -71,10 +70,13 @@
                   <a href="/categories" class="link-secondary">Categorías</a>
                 </li>
                 <li class="list-group-item list-group-item-light">
-                  <a href="/estados" class="link-secondary">Estados</a>
+                  <a href="/status" class="link-secondary">Estados</a>
                 </li>
                 <li class="list-group-item list-group-item-light">
-                  <a href="/ofertas" class="link-secondary">Ofertas</a>
+                  <a href="/offers" class="link-secondary">Ofertas</a>
+                </li>
+                <li class="list-group-item list-group-item-light">
+                  <a href="/candidates" class="link-secondary">Candidatos</a>
                 </li>
               </ul>
             </p>

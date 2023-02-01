@@ -35,16 +35,46 @@ terms = {'Quality/Six Sigma':['black belt','capability analysis','control charts
                       'health care','health','hospital','human factors','medical','near misses',
                       'patient','reporting system']}
 
-def getRessumeDF(file):
+def getEmail(texto):
+    try:
+        email = re.search(r'[\w\.-]+@[a-z0-9\.-]+', texto).group(0)
+    except AttributeError:
+        email = re.search(r'[\w\.-]+@[a-z0-9\.-]+', texto)
+    return email
+
+def getText(file):
     ruta = "main/static/files/"+file
     images = glob.glob(ruta)
     image_text = ""
     for img in images:
         image_text = pytesseract.image_to_string(img)
-    image_text = image_text.lower() #minúsculas
     image_text = re.sub(r'\d+','',image_text) #quito números
+    image_text = image_text.replace('\n',' ')
+    image_text = image_text.replace('  ',' ')
+    image_text_email = image_text
+    image_text = image_text.lower() #####
     image_text = image_text.translate(str.maketrans('','',string.punctuation))
     text = image_text
+
+    return text, image_text_email
+
+def getRessumeDF(text):
+    # ruta = "main/static/files/"+file
+    # images = glob.glob(ruta)
+    # image_text = ""
+    # for img in images:
+    #     image_text = pytesseract.image_to_string(img)
+    # image_text = re.sub(r'\d+','',image_text) #quito números
+    # image_text = image_text.replace('\n',' ')
+    # image_text = image_text.replace('  ',' ')
+    # image_text_email = image_text
+    # image_text = image_text.lower() #####
+    # image_text = image_text.translate(str.maketrans('','',string.punctuation))
+
+
+    # text = image_text
+
+
     quality = 0
     operations = 0
     supplychain = 0
@@ -96,9 +126,17 @@ def getRessumeDF(file):
             
     sum = pd.DataFrame({'Área':terms.keys(), 'Puntaje': scores}).sort_values(by='Puntaje', ascending=False)
 
-    pie = plt.figure(figsize=(5,5))
+    pie = plt.figure(figsize=(6,6))
     plt.pie(sum['Puntaje'], labels=sum.index, autopct='%1.0f%%',shadow=True,startangle=90)
     plt.title('Áreas más desarrolladas')
     plt.axis('equal')
     pie.savefig('main/static/files/resume_results.png')
+
     return sum
+
+def obtenerDF_Email(file):
+    text, text_email = getText(file)
+    dataframe = getRessumeDF(text)
+    email = getEmail(text_email)
+
+    return dataframe, email

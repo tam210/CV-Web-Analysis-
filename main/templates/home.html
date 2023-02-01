@@ -1,22 +1,26 @@
 {% extends "layout.html" %}
 {% block content %}
-    {% for candidato in candidatos.items %}
+    <h3>Candidatos registrados</h3>
+    <h6 class="text-right font-weight-light">
+        <a href="{{ url_for('create_candidate') }}">Registra un nuevo candidato</a>
+    </h6>
+    {% for candidate in candidates.items %}
         <article class="media content-section">
             <div class="media-body">
             <div class="article-metadata">
-                <a class="mr-2" href="#">{{ candidato.categoria.name }}</a>
-                <small class="text-muted">{{ candidato.estado.name }}</small>
-                <small class="text-muted ml-2">Registrado el {{ candidato.fecha_creacion.strftime('%Y-%m-%d') }}</small>
+                <a class="mr-2" href="#">{{ candidate.category.name }}</a>
+                <small class="text-muted">{{ candidate.status.name }}</small>
+                <small class="text-muted ml-2">Registrado el {{ candidate.creation_date.strftime('%Y-%m-%d') }}</small>
             </div>
-            <h2><a class="article-title" href="{{ url_for('candidato', candidato_id=candidato.id) }}">{{ candidato.nombre }}</a></h2>
-            <p class="article-content">{{ candidato.cargo_postulante }}</p>
+            <h2><a class="article-title" href="{{ url_for('candidate', candidate_id=candidate.id) }}">{{ candidate.name }}</a></h2>
+            <p class="article-content">{{ candidate.description }}</p>
         </div>
         </article>
     {% endfor %}
 
-    {% for page_num in candidatos.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+    {% for page_num in candidates.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
         {% if page_num %}
-            {% if candidatos.page == page_num %}
+            {% if candidates.page == page_num %}
                 <a class="btn btn-info mb-4" href="{{ url_for('home', page=page_num) }}"> {{ page_num }}</a>
                 {% else %}
                 <a class="btn btn-outline-info mb-4" href="{{ url_for('home', page=page_num) }}"> {{ page_num }}</a>

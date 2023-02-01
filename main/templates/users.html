@@ -2,9 +2,12 @@
 {% block content %}
 
     <h3 class="mb-3">Usuarios registrados</h3>
+    <h6 class="text-right font-weight-light">
+        <a href="{{ url_for('create_candidate') }}">Registrar nuevo candidato</a>
+    </h6>
     <div class="content-section">    
         {% for user in users %}
-            <p>{{ user.nombre }}</p>
+            <p>{{ user.name }}</p>
         {% endfor%}
     </div>
 {% endblock content %}

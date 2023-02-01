@@ -4,8 +4,13 @@
     <div class="content-section">
         <div class="media-body">
         <h2 class="account-heading">{{ current_user.username }}</h2>
-        <p class="text-secondary">{{ current_user.email }}</p>
-        <p class="text-secondary">Creado el {{ current_user.fecha_creacion.strftime('%Y-%m-%d') }} a las {{ current_user.fecha_creacion.strftime('%H:%M') }} hrs.</p>
+
+        <p class="text-secondary">
+            {{current_user.email}}<br>
+            Creado el {{ current_user.creation_date.strftime('%Y-%m-%d') }} a las {{ current_user.creation_date.strftime('%H:%M') }} hrs. <br>
+            Tipo: {{current_user.type}}<br>
+            
+        </p>
         </div>
     </div>
 

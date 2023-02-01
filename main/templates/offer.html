@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="#">{{ offer.category.name }}</a>
+                <small class="text-muted">{{ offer.status.name }}</small>
+                <small class="text-muted ml-2">Registrado el {{ offer.creation_date.strftime('%Y-%m-%d') }}</small>
+
+            </div>
+            <h2><a class="article-title" href="#">{{ offer.name }}</a></h2>
+            <p class="article-content">{{ offer.description }}</p>
+           
+        </div>
+    </article>
+{% endblock content %}

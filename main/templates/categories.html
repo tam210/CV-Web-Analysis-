@@ -2,12 +2,13 @@
 {% block content %}
 
     <h3 class="mb-3">Categorías registradas</h3>
+    <h6 class="text-right font-weight-light">
+        <a href="{{ url_for('create_category') }}">Crear categoría</a>
+    </h6>
     <div class="content-section">    
-        {% for categoria in categorias %}
-            <p>{{ categoria.name }}</p>
+        {% for category in categories %}
+            <p>{{ category.name }}</p>
         {% endfor%}
     </div>
-    <a class="nav-item nav-link" href="/category/new">Agregar categoría</a>
-
 {% endblock content %}
  
