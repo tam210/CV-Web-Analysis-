@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-
+#from main.models import Category, Status
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '76e0456a45472c9cc0b9af2e3a881297'
@@ -22,15 +22,6 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
 
-# ob1 = Estado(name='Activo',classification='Trabajo')
-# ob2 = Estado(name='Finalizado',classification='Trabajo')
-
-# ob3 = Estado(name='Rechazado',classification='Candidato')
-# ob4 = Estado(name='En evaluación',classification='Candidato')
-# ob5 = Estado(name='Aprobado',classification='Candidato')
-
-# db.session.add_all(ob1,ob2, ob3, ob4, ob5)
-# db.session.commit()
 
 #pongo las rutas despues de inicializar:
 from main import routes

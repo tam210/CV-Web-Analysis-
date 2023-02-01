@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, FileField, SubmitField, SelectField, TextAreaField
 from wtforms_sqlalchemy.fields import  QuerySelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from main.models import User, Category, Status, Phone, E_mail
+from main.models import User, Category, Status, Phone, E_mail, Candidate
 
 #Los formularios en HTML se harán con la sintaxis de flask:
 #Formulario de registro
@@ -66,12 +66,14 @@ class CandidateForm(FlaskForm):
 
     
     def validate_email(self, email):
-        # print(Email.query.all())
         em = E_mail.query.filter_by(name=email.data).first()
         if em:
-            raise ValidationError('El teléfono ingresado ya existe.')
+            raise ValidationError('El email ingresado ya existe.')
 
-
+    def validate_file(self, file):
+        em = Candidate.query.filter_by(file=file.data).first()
+        if em:
+            raise ValidationError('El archivo ingresado ya existe.')
 
 
 

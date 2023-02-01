@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 from main.analysis import obtenerDF_Email
 from main import app, db, bcrypt
-from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone
+from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, inicialize
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -16,11 +16,14 @@ NAMETYPE_USER_CANDIDATE = 'Candidato'
 CLASSIFICATION_STATUS_OFFER = 'Trabajo'
 CLASSIFICATION_STATUS_CANDIDATE = 'Candidato'
 
+
+
+
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 @app.route("/candidates", methods=['GET', 'POST'])
-
 def home():
+    inicialize()
     """
     page: lo que se quiere obtener
     1: el valor por DEFAULT
@@ -118,28 +121,49 @@ def create_candidate():
                                 status_id=form.status.data.id, 
                                 file=form.file.data, 
                                 description=form.description.data, type=NAMETYPE_USER_CANDIDATE)
+            #Si ingresó un email en el formulario crea un email nuevo
+            current_user.candidates.append(cand)
             if form.email.data:
+                print("Email agregado por formulario")
                 em = E_mail(name=form.email.data, candidate_id=cand.id)
+                print("\n\nEMAIL A INGRESAR",em)
                 db.session.add(em)
+            #Si ingresó un teléfono en el formulario crea un email nuevo
             if form.phone.data:
+                print("Telefono agregado por formulario")
                 ph = Phone(name=form.phone.data, candidate_id=cand.id)
                 db.session.add(ph)
-            current_user.candidates.append(cand)
-
-            if cand.file: #si tiene imagen
-                _, email = obtenerDF_Email(ff)
-                if email:
-                    if email not in cand.emails:
+            #Si ingresó un email en el formulario crea un email nuevo
+            #if cand.file: #si tiene imagen
+            if form.file.data: #si tiene imagen
+                _, email, phone = obtenerDF_Email(ff)
+                if email: #si ingresó email
+                    #si no existe un email con ese nombre, NO ESTÁ REGISTRADO
+                    if not E_mail.query.filter_by(name=email).first():
+                        print("-------NO ESTÁ REGISTRADO EM-----------")
+                        em2 = E_mail(name = email, candidate_id=cand.id)
+                        db.session.add(em2)
+                        print("Email agregado por cv")
+                    else:
+                        print("-------SI ESTÁ REGISTRADO EM-----------")
+                if phone:
+                    if not Phone.query.filter_by(name=phone).first():
                         print("-------NO ESTÁ REGISTRADO-----------")
-                        em = E_mail(name = email, candidate_id=cand.id)
-                        db.session.add(em)
+                        ph2 = Phone(name = phone, candidate_id=cand.id)
+                        db.session.add(ph2)
+                        print("Telefono agregado por cv")
             db.session.add(cand)
-            #db.session.add(current_user)
+            db.session.add(current_user)
+            print("RESUMEN:")
+            print(cand)
+            print(cand.phones.count())
+            print(cand.emails.count())
             db.session.commit()
             flash('Candidato registrado', 'success')
             return redirect(url_for('home'))
 
         except SQLAlchemyError as e:
+            print("ERROR-------------X-X-X-X-X")
             error = str(e.__dict__['orig'])
         return error
         
@@ -150,9 +174,12 @@ def create_candidate():
 @app.route("/candidates/<int:candidate_id>", methods=['GET', 'POST'])
 def candidate(candidate_id):
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
-     
+    
     candidate = Candidate.query.get_or_404(candidate_id)
     image_file=url_for('static', filename='files/'+candidate.file)
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print(candidate.phones)
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
     return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file)
 
 
@@ -180,11 +207,17 @@ def update_candidate(candidate_id):
         candidate.description = form.description.data
         candidate.file = form.file.data
         if form.email.data:
-            em = E_mail(name=form.email.data, candidate_id=candidate.id)
-            db.session.add(em)
+            if form.email.data not in candidate.emails:
+                em = E_mail(name=form.email.data, candidate_id=candidate.id)
+                db.session.add(em)
+            else:
+                print ("---------------------NNN----")
         if form.phone.data:
-            ph = Phone(name=form.phone.data, candidate_id=candidate.id)
-            db.session.add(ph)
+            if form.phone.data not in candidate.phones:
+                ph = Phone(name=form.phone.data, candidate_id=candidate.id)
+                db.session.add(ph)
+            else:
+                print ("---------------------NNN----")
         db.session.commit()
         #print(candidate)
         flash('Información del candidato actualizada', 'success')
@@ -210,9 +243,12 @@ def delete_candidate(candidate_id):
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
     candidate = Candidate.query.get_or_404(candidate_id)
     #si el registro no fue hecho por el usuario logueado
-    if current_user not in candidate.usuarios:
+    if current_user not in candidate.users:
+        print("SDSDSD")
         abort(403)
     db.session.delete(candidate)
+    db.session.delete(candidate.emails)
+    db.session.delete(candidate.phones)
     db.session.commit()
     flash('Usuario eliminado', 'success')
     return redirect(url_for('home'))

@@ -5,6 +5,7 @@ import string
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'
 
@@ -42,6 +43,14 @@ def getEmail(texto):
         email = re.search(r'[\w\.-]+@[a-z0-9\.-]+', texto)
     return email
 
+def getPhoneNumber3(string):
+    phone = ''
+    phoneRegEx = re.compile('\"tel\:[\(\)\-0-9\ ]{1,}\"')
+    m = phoneRegEx.search(string)
+    if m:
+        phone = m.group(0)[5:-1]
+    return phone
+
 def getPhoneNumber2(texto):
     try:
         phone = re.findall(r'+?(?[1-9][0-9 .-()]{8,}[0-9]', texto)
@@ -74,20 +83,6 @@ def getText(file):
     return text, image_text_email, text_phone
 
 def getRessumeDF(text):
-    # ruta = "main/static/files/"+file
-    # images = glob.glob(ruta)
-    # image_text = ""
-    # for img in images:
-    #     image_text = pytesseract.image_to_string(img)
-    # image_text = re.sub(r'\d+','',image_text) #quito números
-    # image_text = image_text.replace('\n',' ')
-    # image_text = image_text.replace('  ',' ')
-    # image_text_email = image_text
-    # image_text = image_text.lower() #####
-    # image_text = image_text.translate(str.maketrans('','',string.punctuation))
-
-
-    # text = image_text
     quality = 0
     operations = 0
     supplychain = 0
@@ -145,15 +140,11 @@ def getRessumeDF(text):
     plt.axis('equal')
     pie.savefig('main/static/files/resume_results.png')
 
+    # plt.pie(data=sum, x="Área", y="Puntaje")
+    # plt.savefig('main/static/files/resume_results.png')
+
     return sum
 
-def getPhone(string):
-    phone = ''
-    phoneRegEx = re.compile('\"tel\:[\(\)\-0-9\ ]{1,}\"')
-    m = phoneRegEx.search(string)
-    if m:
-        phone = m.group(0)[5:-1]
-    return phone
 
 def obtenerDF_Email(file):
     text, text_email, text_phone = getText(file)
