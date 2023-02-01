@@ -5,10 +5,11 @@
     <h6 class="text-right font-weight-light">
         <a href="{{ url_for('create_category') }}">Crear categoría</a>
     </h6>
-    <div class="content-section">    
-        {% for category in categories %}
-            <p>{{ category.name }}</p>
-        {% endfor%}
-    </div>
+
+    {% for category in categories %}
+    <article class="media content-section">
+        <p class="article-content">{{ category.name }}</p>
+    </article>
+    {% endfor %}
 {% endblock content %}
  

@@ -5,10 +5,11 @@
     <h6 class="text-right font-weight-light">
         <a href="{{ url_for('create_status') }}">Crear estado</a>
     </h6>
-    <div class="content-section">    
-        {% for stat in statuses %}
-            <p>{{ stat.name }}</p>
-        {% endfor %}
-    </div>
+
+    {% for stat in statuses %}
+    <article class="media content-section">
+        <p class="article-content">{{ stat.name }}</p>
+    </article>
+    {% endfor %}
 {% endblock content %}
  

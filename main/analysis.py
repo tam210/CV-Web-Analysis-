@@ -51,6 +51,8 @@ def getPhoneNumber2(texto):
 
 def getPhoneNumber(text):
     e = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', text)
+    if not e:
+        return e
     return e[0]
 
 def getText(file):
@@ -86,8 +88,6 @@ def getRessumeDF(text):
 
 
     # text = image_text
-
-
     quality = 0
     operations = 0
     supplychain = 0
@@ -140,7 +140,7 @@ def getRessumeDF(text):
     sum = pd.DataFrame({'Área':terms.keys(), 'Puntaje': scores}).sort_values(by='Puntaje', ascending=False)
 
     pie = plt.figure(figsize=(6,6))
-    plt.pie(sum['Puntaje'], labels=sum.index, autopct='%1.0f%%',shadow=True,startangle=90)
+    plt.pie(sum['Puntaje'], labels=sum.index, autopct='%1.0f%%',startangle=90)
     plt.title('Áreas más desarrolladas')
     plt.axis('equal')
     pie.savefig('main/static/files/resume_results.png')
@@ -160,4 +160,5 @@ def obtenerDF_Email(file):
     dataframe = getRessumeDF(text)
     email = getEmail(text_email)
     phone = getPhoneNumber(text_phone)
+    #print("\n\n",phone,"\n\n")
     return dataframe, email, phone

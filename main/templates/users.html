@@ -5,10 +5,11 @@
     <h6 class="text-right font-weight-light">
         <a href="{{ url_for('create_candidate') }}">Registrar nuevo candidato</a>
     </h6>
-    <div class="content-section">    
-        {% for user in users %}
-            <p>{{ user.name }}</p>
-        {% endfor%}
-    </div>
+
+    {% for user in users %}
+    <article class="media content-section">
+        <p class="article-content">{{ user.name }}</p>
+    </article>
+    {% endfor %}
 {% endblock content %}
  
