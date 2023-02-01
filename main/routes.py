@@ -112,6 +112,7 @@ def create_candidate():
     form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
     if form.validate_on_submit():
         try:
+            ff = form.file.data
             cand = Candidate(name=form.name.data,
                                 category_id=form.category.data.id, 
                                 status_id=form.status.data.id, 
@@ -124,8 +125,20 @@ def create_candidate():
                 ph = Phone(name=form.phone.data, candidate_id=cand.id)
                 db.session.add(ph)
             current_user.candidates.append(cand)
-            # if cand.image_file: #si tiene imagen
-            #     _, email = obtenerDF_Email(cand.image_file)
+
+            if cand.file: #si tiene imagen
+                _, email = obtenerDF_Email(ff)
+                if email:
+                    if email in cand.emails:
+                        print("--------TA REGISTRADO---------------")
+                        print(email)
+                        print(em)
+                        print("-----------------------")
+                        print(cand.emails)
+                    else:
+                        print("-------NO -TA REGISTRADO---------------")
+                        em = E_mail(name = email, candidate_id=cand.id)
+                        db.session.add(em)
             db.session.add(cand)
             #db.session.add(current_user)
             db.session.commit()

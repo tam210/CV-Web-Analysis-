@@ -37,19 +37,21 @@
             </p>
         
 
-
-
-            <a class="mr-2" href="#">
-                {{ candidate.file }}
-            </a>
-            <a class="mr-2" href="{{ url_for('analysis', file=candidate.file) }}">Generar análisis</a>
-            
-            <div class="container">
-                <div class="col-md-12 px-0 mt-5">
-                    <h5>Vista previa</h5>
-                    <img src="{{ image_file }}" class="img-fluid">
+            {% if candidate.file %}
+                <a class="mr-2" href="{{ url_for('analysis', file=candidate.file) }}">Generar análisis</a>
+                
+                <div class="container">
+                    <div class="col-md-12 px-0 mt-5">
+                        <h5>Vista previa</h5>
+                        <img src="{{ image_file }}" class="img-fluid">
+                    </div>
                 </div>
-            </div>
+            {% else %}
+                <div>
+                    No se han cargado archivos.
+                </div>
+            {% endif %}
+
         </div>
     </article>
 

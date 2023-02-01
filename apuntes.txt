@@ -11,4 +11,14 @@ Muchos postulantes pueden POSTULAR a un mismo empleo. Falta hacer ese filtro
 Código de trabajo
 Ej Julio posutla al empleo ID 89
 
-otro problema: combinacion de ingles con español xd
+Dudas
+1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail? Pues para indicar que el correo ingresado
+es extraído del CV automáticamente o ingresado manualmente. Sería más necesario si se extrae más de un correo,
+pero actualmente está obteniendo el primer elemento. La ventaja de esto es que obtiene inmediatamente el correo,
+ya que usualmente este está al principio del documento, así no se confunde con otro caracter extraño que contenga
+la misma estructura de un correo
+
+Errores y problemas
+Combinación de ingles con español //PARSEADO A INGLÉS
+Mala lectura en los archivos cv-4, cv-5 y cv-2 (formato imagen)
+Se debe cambiar el método de lectura de imágenes, ya que los escaneos son en PDF

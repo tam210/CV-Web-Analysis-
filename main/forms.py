@@ -59,23 +59,15 @@ class CandidateForm(FlaskForm):
     submit = SubmitField('Enviar')
     
     def validate_phone(self, phone):
-        print("WWWWWWWWWWWWWWWWWWWWWWWWWWW")
-        print(phone.data)
         # print(Email.query.all())
         em = Phone.query.filter_by(name=phone.data).first()
-        print(em)
-        print("WWWWWWWWWWWWWWWWWWWWWWWWWWW")
         if em:
             raise ValidationError('El teléfono ingresado ya existe.')
 
     
     def validate_email(self, email):
-        print("WWWWWWWWWWWWWWWWWWWWWWWWWWW")
-        print(email.data)
         # print(Email.query.all())
         em = E_mail.query.filter_by(name=email.data).first()
-        print(em)
-        print("WWWWWWWWWWWWWWWWWWWWWWWWWWW")
         if em:
             raise ValidationError('El teléfono ingresado ya existe.')
 
