@@ -30,3 +30,6 @@ Errores y problemas
 Combinación de ingles con español //PARSEADO A INGLÉS
 Mala lectura en los archivos cv-4, cv-5 y cv-2 (formato imagen)
 Se debe cambiar el método de lectura de imágenes, ya que los escaneos son en PDF
+
+Backend: Python, con el microframework: Flask
+Frontend: HTML, CSS y próximamente React.js
