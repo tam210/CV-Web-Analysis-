@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 from main.analysis import obtenerDF_Email
 from main import app, db, bcrypt
-from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, inicialize
+from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -12,6 +12,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 NAMETYPE_USER_USER = 'Usuario'
 NAMETYPE_USER_CANDIDATE = 'Candidato'
+NAMETYPE_USER_ADMINISTRATOR = 'Administrador'
 
 CLASSIFICATION_STATUS_OFFER = 'Trabajo'
 CLASSIFICATION_STATUS_CANDIDATE = 'Candidato'
@@ -72,7 +73,10 @@ def register():
         user = User(name=form.name.data, 
                         password=hashed_paswword, 
                         email=form.email.data, 
-                        username=form.username.data, type=NAMETYPE_USER_USER)
+                        username=form.username.data)
+        type_id = Type.query.filter_by(nametype=NAMETYPE_USER_USER).first().id
+        user.type = type_id
+        print("--------------------------",user)
         db.session.add(user)
         db.session.commit()
         flash(f'Tu cuenta ha sido creada, {form.username.data}!', 'success')
@@ -120,9 +124,47 @@ def create_candidate():
                                 category_id=form.category.data.id, 
                                 status_id=form.status.data.id, 
                                 file=form.file.data, 
-                                description=form.description.data, type=NAMETYPE_USER_CANDIDATE)
-            #Si ingresó un email en el formulario crea un email nuevo
+                                description=form.description.data)
+            type_id = Type.query.filter_by(nametype=NAMETYPE_USER_CANDIDATE).first().id
+            print(cand,"---", type_id)
+            cand.type = type_id
+            #Si se introdujo un archivo distinto al que tenía el candidato
+            if form.file.data != cand.file:
+                # Si no existe un candidato con ese archivo
+                if not Candidate.query.filter_by(file=form.file.data).first():
+                    cand.file = form.file.data
+                else:
+                    flash('El archivo ingresado pertenece a otro candidato.')
+            else:
+                cand.file = form.file.data
+
+            
+            db.session.add(cand)
             current_user.candidates.append(cand)
+            db.session.add(current_user)
+            #--------------------------------------------
+            # Si ingresó un archivo
+            #--------------------------------------------
+            if form.file.data:
+                # Obtengo el email y teléfono del documento
+                _, email, phone = obtenerDF_Email(ff)
+                # Si se obtuvo un email válido (no nulo)
+                if email: 
+                    # Si no existe un email con ese nombre se puede ingresar uno nuevo
+                    if not E_mail.query.filter_by(name=email).first():
+                        em2 = E_mail(name = email, candidate_id=cand.id)
+                        db.session.add(em2)
+                    # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
+                # Si se obtuvo un contacto válido (no nulo)
+                if phone:
+                    # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
+                    if not Phone.query.filter_by(name=phone).first():
+                        ph2 = Phone(name = phone, candidate_id=cand.id)
+                        db.session.add(ph2)
+            #-------------------------------------------
+            # Si ingresó un email y teléfono manualmente
+            #-------------------------------------------
+            #Si ingresó un email en el formulario crea un email nuevo
             if form.email.data:
                 print("Email agregado por formulario")
                 em = E_mail(name=form.email.data, candidate_id=cand.id)
@@ -134,36 +176,12 @@ def create_candidate():
                 ph = Phone(name=form.phone.data, candidate_id=cand.id)
                 db.session.add(ph)
             #Si ingresó un email en el formulario crea un email nuevo
-            #if cand.file: #si tiene imagen
-            if form.file.data: #si tiene imagen
-                _, email, phone = obtenerDF_Email(ff)
-                if email: #si ingresó email
-                    #si no existe un email con ese nombre, NO ESTÁ REGISTRADO
-                    if not E_mail.query.filter_by(name=email).first():
-                        print("-------NO ESTÁ REGISTRADO EM-----------")
-                        em2 = E_mail(name = email, candidate_id=cand.id)
-                        db.session.add(em2)
-                        print("Email agregado por cv")
-                    else:
-                        print("-------SI ESTÁ REGISTRADO EM-----------")
-                if phone:
-                    if not Phone.query.filter_by(name=phone).first():
-                        print("-------NO ESTÁ REGISTRADO-----------")
-                        ph2 = Phone(name = phone, candidate_id=cand.id)
-                        db.session.add(ph2)
-                        print("Telefono agregado por cv")
-            db.session.add(cand)
-            db.session.add(current_user)
-            print("RESUMEN:")
-            print(cand)
-            print(cand.phones.count())
-            print(cand.emails.count())
             db.session.commit()
             flash('Candidato registrado', 'success')
             return redirect(url_for('home'))
 
         except SQLAlchemyError as e:
-            print("ERROR-------------X-X-X-X-X")
+            print("ERROR! - Registro de candidato")
             error = str(e.__dict__['orig'])
         return error
         
@@ -198,41 +216,54 @@ def update_candidate(candidate_id):
 
     if form.validate_on_submit():
         candidate.name = form.name.data 
-        # candidate.category = form.category.data
-        # candidate.status = form.status.data
-
-        
-        # candidate.emails = form.email.data.id
-        # candidate.phones = form.phone.data
         candidate.description = form.description.data
-        candidate.file = form.file.data
+        # Si introdujo un email manualmente
         if form.email.data:
-            if form.email.data not in candidate.emails:
+            if not E_mail.query.filter_by(name=form.email.data).first():
                 em = E_mail(name=form.email.data, candidate_id=candidate.id)
                 db.session.add(em)
             else:
                 print ("---------------------NNN----")
+        # Si introdujo un teléfono manualmente
         if form.phone.data:
-            if form.phone.data not in candidate.phones:
+            if not Phone.query.filter_by(name=form.phone.data).first():
                 ph = Phone(name=form.phone.data, candidate_id=candidate.id)
                 db.session.add(ph)
             else:
                 print ("---------------------NNN----")
+        
+        #Si se introdujo un archivo distinto al que tenía el candidato
+        if form.file.data != candidate.file:
+            # Si no existe un candidato con ese archivo
+            if not Candidate.query.filter_by(file=form.file.data).first():
+                candidate.file = form.file.data
+                  #PENDIENTE: BORRAR REGISTROS ANTEIRIORES!! EMAILS ANTERIORES PARA LIBERARLOS
+            else:
+                flash('El archivo ingresado pertenece a otro candidato.', 'danger')
+                return redirect(url_for('candidate', candidate_id=candidate.id))
+
+        candidate.file = form.file.data
+
+            
         db.session.commit()
         #print(candidate)
         flash('Información del candidato actualizada', 'success')
         return redirect(url_for('candidate', candidate_id=candidate.id))
-    #cuando se carga la pagina, se carga con info ya cargada del sistema.
-    #cuando el sistema quiere cargar la pagina, lo pide a traves del
+    #-------------------------------------------
+    # Cuando se carga la pagina, se carga con info ya cargada del sistema.
+    # Cuando el sistema quiere cargar la pagina, lo pide a traves del
     # 'GET', por lo que cuando se quiera cargar la pagina debemos
     # definir la info predeterminada a mostrar
+    #-------------------------------------------
     elif request.method == 'GET': #cuando cargamos/redirreciona la pagina
         form.name.data = candidate.name
         form.category.data = candidate.category
         form.status.data = candidate.status
-
         form.description.data = candidate.description
         form.file.data = candidate.file
+
+        # if candidate.emails.count()>0: #si tiene emails registrados
+        #     form.name          
     
     return render_template('new_candidate.html', title='Actualizar candidato',
                              form=form, legend='Actualizar candidato')
@@ -244,7 +275,6 @@ def delete_candidate(candidate_id):
     candidate = Candidate.query.get_or_404(candidate_id)
     #si el registro no fue hecho por el usuario logueado
     if current_user not in candidate.users:
-        print("SDSDSD")
         abort(403)
     db.session.delete(candidate)
     db.session.delete(candidate.emails)

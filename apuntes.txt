@@ -7,9 +7,17 @@ url_for('nombre de la FUNCION de la ruta, no la ruta /ruta', parametros)
 			 	 Capacidad de aprendizaje
 				 Creatividad
 
-Muchos postulantes pueden POSTULAR a un mismo empleo. Falta hacer ese filtro
-Código de trabajo
-Ej Julio posutla al empleo ID 89
+- Muchos postulantes pueden POSTULAR a un mismo empleo. Falta hacer ese filtro
+- Código de trabajo
+	- Ej Julio posutla al empleo ID 89
+> Al hacer click en la oferta, se hace necesario mostrar los candidatos que postulan en un tipo de formato:
+	- Eduardo Venegas. Estado: En evaluación
+Sería una buena funcionalidad de que cuando se cierre la oferta (estado = Finalizado) se cambie el estado
+de todos los postulantes que fueran aprobados a aprobado (estado = Aprobado) y los restantes al estado reprobado
+(estado = Reprobado)
+- Control de error: Si la oferta está finalizada no se puede cambiar el tipo del candidato
+- Envío de correo automático personalizado en caso de finalizar la convocatoria 
+(habilitar opción y mostrar preview)
 
 Dudas
 1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail? Pues para indicar que el correo ingresado

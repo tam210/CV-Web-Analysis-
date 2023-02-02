@@ -70,11 +70,10 @@ class CandidateForm(FlaskForm):
         if em:
             raise ValidationError('El email ingresado ya existe.')
 
-    def validate_file(self, file):
-        em = Candidate.query.filter_by(file=file.data).first()
-        if em:
-            raise ValidationError('El archivo ingresado ya existe.')
-
+    # def validate_file(self, file):
+    #     candidate = Candidate.query.filter_by(file=file.data).first()
+    #     if candidate: #si existe un candidato con ese archivo ya almacenado
+    #         raise ValidationError('El archivo ingresado ya existe.')
 
 
 class CategoryForm(FlaskForm):
