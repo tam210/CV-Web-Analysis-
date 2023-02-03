@@ -22,8 +22,8 @@ de todos los postulantes que fueran aprobados a aprobado (estado = Aprobado) y l
 > Utilizar CKEditor para mayor flexibilidad al personalizar la descripción de un candidato y/o los emails a enviar, utilizando CKEditor de Flask
 
 Dudas
-1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail? Para indicar que el correo ingresado
-es extraído del CV automáticamente o ingresado manualmente. Sería más necesario si se extrae más de un correo,
+1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail para indicar que el correo ingresado
+es extraído del CV automáticamente o ingresado manualmente? Sería más necesario si se extrae más de un correo,
 pero actualmente está obteniendo el primer elemento. La ventaja de esto es que obtiene inmediatamente el correo,
 ya que usualmente este está al principio del documento, así no se confunde con otro caracter extraño que contenga
 la misma estructura de un correo
@@ -34,5 +34,5 @@ la misma estructura de un correo
 Se debe cambiar el método de lectura de imágenes, ya que los escaneos son en PDF
 
 Tecnologías:
-Backend: Python, con el microframework: Flask
+Backend: Python, con el microframework Flask
 Frontend: HTML, CSS, Bootstrap y próximamente React.js

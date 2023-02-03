@@ -98,3 +98,8 @@ tr:nth-child(even){
 tr:hover{ 
   background-color: #ade1ff;
 }
+
+.dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+}
