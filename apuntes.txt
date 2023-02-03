@@ -1,5 +1,5 @@
 *Apuntes*
-1. url_for('nombre de la FUNCIÓN de la ruta, no la ruta /ruta', parametros)
+> url_for('nombre de la FUNCIÓN de la ruta, no la ruta /ruta', parametros)
 
 *Ideas*
 > Según el área que se muestre el cuadro de resumen
@@ -26,13 +26,21 @@ Dudas
 es extraído del CV automáticamente o ingresado manualmente? Sería más necesario si se extrae más de un correo,
 pero actualmente está obteniendo el primer elemento. La ventaja de esto es que obtiene inmediatamente el correo,
 ya que usualmente este está al principio del documento, así no se confunde con otro caracter extraño que contenga
-la misma estructura de un correo
+la misma estructura de un correo.
+2. Para evitar más eficientemente el problema de ingresar un CV,
+¿Sería mejor crear una clase 'CV' con sus atributos? De esa forma me aseguro que el CV ya exista y el candidato tenga mayor libertad
+de elegir otro CV con menor cantidad de validación.
 
 *Errores y problemas*
 > Combinación de ingles con español /%%/CORREGIDO: PARSEADO A INGLÉS
 > Mala lectura en los archivos cv-4, cv-5 y cv-2 (formato imagen)
 Se debe cambiar el método de lectura de imágenes, ya que los escaneos son en PDF
-
+> Revisar la validación de ocupar un CV ya ocupado por otro candidato o si el elegido es el mismo que ocupaba antes de la actualización
 Tecnologías:
 Backend: Python, con el microframework Flask
 Frontend: HTML, CSS, Bootstrap y próximamente React.js
+
+*Soluciones a implementar*
+> Solución incompatibilidad bs3 y bs4
+	https://stackoverflow.com/questions/31014635/best-way-to-implement-different-bootstrap-versions-on-the-same-page
+

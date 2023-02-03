@@ -191,10 +191,13 @@ def create_candidate():
 @app.route("/candidates/<int:candidate_id>", methods=['GET', 'POST'])
 def candidate(candidate_id):
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
-    
+    offers = Offer.query.all()
     candidate = Candidate.query.get_or_404(candidate_id)
     image_file=url_for('static', filename='files/'+candidate.file)
-    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file)
+
+    select = request.form.getlist('skills')
+    print(select)
+    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers)
 
 
 @app.route("/candidates/<int:candidate_id>/update", methods=['GET', 'POST'])

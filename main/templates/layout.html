@@ -9,11 +9,17 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
-    
+
+    <!-- Prueba dropdown -->
+    <!-- <link rel="stylesheet" href="dist/virtual-select.min.css" /> -->
+    <!-- LINKS DEL DROPDOWN SEARCH -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> 
+
     {% if title %}
-        <title>Flask Blog - {{ title }}</title>
+        <title>CV - {{ title }}</title>
     {% else %}
-        <title>Flask Blog</title>
+        <title>CV</title>
     {% endif %}
 </head>
 <body>
@@ -86,11 +92,29 @@
       </div>
     </main>
 
+  
+    
+    
+   
 
     <!-- Optional JavaScript -->
+    <!-- Prueba dropdown -->
+    <!-- <script src="dist/virtual-select.min.js"></script> -->
+     <script src="/main/script.js"></script>
+
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+    <!-- LINK DEL DROPDOWN SEARCH -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <!-- LINKS DEL DROPDOWN SEARCH -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+
 </body>
 </html>
