@@ -21,7 +21,7 @@ de todos los postulantes que fueran aprobados a aprobado (estado = Aprobado) y l
 (habilitar opción y mostrar preview)
 > Utilizar CKEditor para mayor flexibilidad al personalizar la descripción de un candidato y/o los emails a enviar, utilizando CKEditor de Flask
 
-Dudas
+*Dudas*
 1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail para indicar que el correo ingresado
 es extraído del CV automáticamente o ingresado manualmente? Sería más necesario si se extrae más de un correo,
 pero actualmente está obteniendo el primer elemento. La ventaja de esto es que obtiene inmediatamente el correo,
@@ -43,4 +43,7 @@ Frontend: HTML, CSS, Bootstrap y próximamente React.js
 *Soluciones a implementar*
 > Solución incompatibilidad bs3 y bs4
 	https://stackoverflow.com/questions/31014635/best-way-to-implement-different-bootstrap-versions-on-the-same-page
-
+> El problema del unique de archivo se debe a que por DEFAULT
+tengo default.jpg! Corregir
+> Solución a la redundancia de la función inicialize() cada vez que se aplica a la ruta '\home'
+	https://stackoverflow.com/questions/31259783/how-to-execute-a-block-of-code-only-once-in-flask

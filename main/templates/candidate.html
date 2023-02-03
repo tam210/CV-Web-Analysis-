@@ -23,7 +23,9 @@
             <form method="post" id="multiple_select_form" action="{{ url_for('candidate', candidate_id=candidate.id) }}">
             <select name="skills" id="skills" class="form-control selectpicker" data-live-search="true" multiple>
                 {% for of in offers %}
-                    <option value="{{of.id}}">{{of.name}}, ID {{of.id}}</option>
+                    {% if of.category == candidate.category%}
+                        <option value="{{of.id}}">{{of.name}}, ID {{of.id}}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
             <input type="hidden" name="hidden_skills" id="hidden_skills" />
@@ -54,7 +56,7 @@
             <h2><a class="article-title" href="#">{{ candidate.name }}</a></h2>
             <p class="article-content">{{ candidate.description }}</p>
             
-            <p class="article-content text-justify">Contacto: 
+            <p class="font-weight-bold article-content text-justify">Contacto: 
                 <ul>
                     {% for ph in candidate.phones %}
                     <li>
@@ -64,7 +66,7 @@
                 </ul>
             </p>
         
-            <p class="article-content">Emails: 
+            <p class="font-weight-bold article-content">Correo electrónico: 
                 <ul>
                     {% for em in candidate.emails %}
                     <li>
@@ -74,6 +76,22 @@
                 </ul>
             </p>
         
+
+            <p class="font-weight-bold article-content">Ofertas postuladas:
+                <ul>
+                    {% if candidate.offers %}
+                        {% for offer in candidate.offers %}
+                        <li>
+                            <a href="{{ url_for('offer', offer_id=offer.id) }}">{{offer.name}}</a>
+                        </li>                    
+                        {% endfor %}
+
+                    {% else %}
+                        No tiene ofertas asociadas 
+                    {% endif %}
+                </ul>
+            </p>
+
 
             {% if candidate.file %}
                 <a class="mr-2" href="{{ url_for('analysis', file=candidate.file) }}">Generar análisis</a>

@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 from main.analysis import obtenerDF_Email
 from main import app, db, bcrypt
-from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize
+from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize, offer_candidate
 from sqlalchemy.exc import SQLAlchemyError
 
 from flask_login import login_user, current_user, logout_user, login_required
@@ -196,7 +196,16 @@ def candidate(candidate_id):
     image_file=url_for('static', filename='files/'+candidate.file)
 
     select = request.form.getlist('skills')
-    print(select)
+
+    for i in select:
+        oferta = Offer.query.get(i)
+        if oferta not in candidate.offers:
+            oferta.candidates.append(candidate)
+            flash('Oferta postulada', 'success')
+        else:
+            flash('La oferta ya se encuentra postulada', 'danger')
+    db.session.commit()
+    #print(oferta.candidates)    
     return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers)
 
 
@@ -356,6 +365,18 @@ def offers():
 
 @app.route("/offers/<int:offer_id>", methods=['GET', 'POST'])
 def offer(offer_id):
+    candidates = Candidate.query.all()
     offer = Offer.query.get_or_404(offer_id)
-    return render_template('offer.html', title=offer_id, offer=offer)
+    select = request.form.getlist('skills')
+
+    for i in select:
+        candidate = Candidate.query.get(i)
+        if candidate not in offer.candidates:
+            candidate.offers.append(offer)
+            flash('Candidato postulado', 'success')
+        else:
+            flash('El candidato ya se encuentra postulado', 'danger')
+    db.session.commit()
+
+    return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates)
 

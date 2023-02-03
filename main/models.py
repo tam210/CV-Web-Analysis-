@@ -25,11 +25,13 @@ def inicialize():
         type_2 = Type(nametype='Administrador')
         type_3 = Type(nametype='Usuario')
 
-        admin = User(name='admin', password='admin', username='admin_username', type=type_2.id)
-        #email_admin = E_mail(name = 'administrador@gmail.com', user_id=admin.id)
-
-
-        db.session.add_all([ob1,ob2, ob3, ob4, ob5, obs6, obs7, obs8, obs9, type_1, type_2, type_3, admin])
+        db.session.add(type_2)
+        # admin = User(name='admin', password='admin', username='admin_username', type=type_2.id)
+        # db.session.add(admin)
+        # print(admin.id)
+        # email_admin = E_mail(name = 'administrador@gmail.com', user_id=admin.id)
+        # db.session.add(email_admin)
+        db.session.add_all([ob1,ob2, ob3, ob4, ob5, obs6, obs7, obs8, obs9, type_1, type_3])
         print('Inserción inicial realizada')
         db.session.commit()
     else:
@@ -66,7 +68,8 @@ class Candidate(db.Model):
     #type = db.Column(db.String(50), nullable = False)
     type = db.Column(db.Integer, db.ForeignKey('type.id'))
     name = db.Column(db.String(50), nullable=False)
-    file = db.Column(db.String(20), nullable=False, unique=True, default='default.jpg')
+    file = db.Column(db.String(20), unique=True)
+    # file = db.Column(db.String(20), nullable=False, unique=True, default='default.jpg')
     description = db.Column(db.String(50), nullable=False)
     #email = db.Column(db.String(50), nullable=True)
     # phone = db.Column(db.Integer, nullable=True)
@@ -77,6 +80,8 @@ class Candidate(db.Model):
     #Foreign key (1, N) Candidato - Email
     emails = db.relationship('E_mail', backref='candidate', lazy='dynamic', passive_deletes=True) #fk
     phones = db.relationship('Phone', backref='candidate', lazy='dynamic', passive_deletes=True) #fk
+
+
 
     def __repr__(self): ##como nuestro objeto es impreso
         return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}')"
@@ -135,7 +140,7 @@ class E_mail(db.Model):
     user_id = db.relationship('User', backref='e_mail', lazy='dynamic') #fk
 
     def __repr__(self):
-        return f"Email('{self.id}', '{self.name}', '{self.candidate_id}')"
+        return f"Email('{self.id}', '{self.name}')"
 
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
