@@ -7,7 +7,6 @@ from main import app, db, bcrypt
 from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize
 from sqlalchemy.exc import SQLAlchemyError
 
-
 from flask_login import login_user, current_user, logout_user, login_required
 
 NAMETYPE_USER_USER = 'Usuario'
@@ -195,9 +194,6 @@ def candidate(candidate_id):
     
     candidate = Candidate.query.get_or_404(candidate_id)
     image_file=url_for('static', filename='files/'+candidate.file)
-    print("XXXXXXXXXXXXXXXXXXXXXXX")
-    print(candidate.phones)
-    print("XXXXXXXXXXXXXXXXXXXXXXX")
     return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file)
 
 
@@ -223,14 +219,14 @@ def update_candidate(candidate_id):
                 em = E_mail(name=form.email.data, candidate_id=candidate.id)
                 db.session.add(em)
             else:
-                print ("---------------------NNN----")
+                print ("-------------------------")
         # Si introdujo un teléfono manualmente
         if form.phone.data:
             if not Phone.query.filter_by(name=form.phone.data).first():
                 ph = Phone(name=form.phone.data, candidate_id=candidate.id)
                 db.session.add(ph)
             else:
-                print ("---------------------NNN----")
+                print ("-------------------------")
         
         #Si se introdujo un archivo distinto al que tenía el candidato
         if form.file.data != candidate.file:

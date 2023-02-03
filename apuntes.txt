@@ -1,35 +1,38 @@
-url_for('nombre de la FUNCION de la ruta, no la ruta /ruta', parametros)
-- según el área que se muestre el cuadro de resumen
+*Apuntes*
+1. url_for('nombre de la FUNCIÓN de la ruta, no la ruta /ruta', parametros)
+
+*Ideas*
+> Según el área que se muestre el cuadro de resumen
 	e.g: Área: Informática
 	     Indicadores del DF: Gestión de proyectos 
-			 	 Ingeniería de software
- 			 	 Dominio de lenguajes
-			 	 Capacidad de aprendizaje
-				 Creatividad
+							 Ingeniería de software
+							 Dominio de lenguajes
+							 Capacidad de aprendizaje
+							 Creatividad
 
-- Muchos postulantes pueden POSTULAR a un mismo empleo. Falta hacer ese filtro
-- Código de trabajo
-	- Ej Julio posutla al empleo ID 89
+> Muchos postulantes pueden POSTULAR a un mismo empleo. Implementar modelo que soporte.
 > Al hacer click en la oferta, se hace necesario mostrar los candidatos que postulan en un tipo de formato:
-	- Eduardo Venegas. Estado: En evaluación
-Sería una buena funcionalidad de que cuando se cierre la oferta (estado = Finalizado) se cambie el estado
+	e.g:     Eduardo Venegas   		Estado: En evaluación
+> Sería una buena funcionalidad de que cuando se cierre la oferta (estado = Finalizado) se cambie el estado
 de todos los postulantes que fueran aprobados a aprobado (estado = Aprobado) y los restantes al estado reprobado
 (estado = Reprobado)
-- Control de error: Si la oferta está finalizada no se puede cambiar el tipo del candidato
-- Envío de correo automático personalizado en caso de finalizar la convocatoria 
+> Control de error: Si la oferta está finalizada, no se puede cambiar el tipo del candidato
+> Envío de correo automático personalizado en caso de finalizar la convocatoria 
 (habilitar opción y mostrar preview)
+> Utilizar CKEditor para mayor flexibilidad al personalizar la descripción de un candidato y/o los emails a enviar, utilizando CKEditor de Flask
 
 Dudas
-1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail? Pues para indicar que el correo ingresado
+1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail? Para indicar que el correo ingresado
 es extraído del CV automáticamente o ingresado manualmente. Sería más necesario si se extrae más de un correo,
 pero actualmente está obteniendo el primer elemento. La ventaja de esto es que obtiene inmediatamente el correo,
 ya que usualmente este está al principio del documento, así no se confunde con otro caracter extraño que contenga
 la misma estructura de un correo
 
-Errores y problemas
-Combinación de ingles con español //PARSEADO A INGLÉS
-Mala lectura en los archivos cv-4, cv-5 y cv-2 (formato imagen)
+*Errores y problemas*
+> Combinación de ingles con español /%%/CORREGIDO: PARSEADO A INGLÉS
+> Mala lectura en los archivos cv-4, cv-5 y cv-2 (formato imagen)
 Se debe cambiar el método de lectura de imágenes, ya que los escaneos son en PDF
 
+Tecnologías:
 Backend: Python, con el microframework: Flask
-Frontend: HTML, CSS y próximamente React.js
+Frontend: HTML, CSS, Bootstrap y próximamente React.js

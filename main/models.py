@@ -98,10 +98,8 @@ offer_candidate = db.Table('offer_candidate',
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    #type = db.Column(db.String(50), nullable = False)
     name = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(50), nullable=False)
-    #email = db.Column(db.String(50), nullable=False)
     username = db.Column(db.Integer, unique=True, nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
@@ -111,11 +109,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(50), db.ForeignKey('e_mail.id'))
     type = db.Column(db.Integer, db.ForeignKey('type.id'))
 
-    #type = db.relationship('Type', backref='user', lazy='dynamic') #fk
-
-
     def __repr__(self): ##como nuestro objeto es impreso
         return f"User('{self.id}', '{self.name}', '{self.password}', '{self.email}', '{self.username}', '{self.creation_date}', '{self.type}')"
+
 
 class Offer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -128,8 +124,7 @@ class Offer(db.Model):
 
     candidates = db.relationship('Candidate', secondary=offer_candidate, backref='offers')
 
-
-    def __repr__(self): ##como nuestro objeto es impreso
+    def __repr__(self):
         return f"Offer('{self.id}', '{self.name}', '{self.category_id}', '{self.user_id}', '{self.status_id}', '{self.description}', '{self.creation_date}')"
 
 class E_mail(db.Model):
@@ -139,8 +134,7 @@ class E_mail(db.Model):
     #status_id = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'))
     user_id = db.relationship('User', backref='e_mail', lazy='dynamic') #fk
 
-    
-    def __repr__(self): ##como nuestro objeto es impreso
+    def __repr__(self):
         return f"Email('{self.id}', '{self.name}', '{self.candidate_id}')"
 
 class Type(db.Model):
@@ -149,9 +143,7 @@ class Type(db.Model):
     users = db.relationship('User', backref='type_user', lazy='dynamic')
     candidates = db.relationship('Candidate', backref='type_candidate', lazy='dynamic')
 
-    #user_id = db.Column(db.String(50), db.ForeignKey('user.id')) #fk
-
-    def __repr__(self): ##como nuestro objeto es impreso
+    def __repr__(self):
         return f"Type('{self.id}', '{self.nametype}')"
 
 
@@ -160,5 +152,5 @@ class Phone(db.Model):
     name = db.Column(db.Integer, nullable=False, unique=True)
     candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id')) #
 
-    def __repr__(self): ##como nuestro objeto es impreso
+    def __repr__(self):
         return f"Phone('{self.id}', '{self.name}', '{self.candidate_id}')"

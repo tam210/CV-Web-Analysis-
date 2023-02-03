@@ -55,6 +55,7 @@ class CandidateForm(FlaskForm):
     email = StringField('Email')
     phone = StringField('Teléfono')
     description = TextAreaField('Descripción', validators=[DataRequired()])
+    description = TextAreaField('Descripción', validators=[DataRequired()])
     file = FileField("Archivo")
     submit = SubmitField('Enviar')
     
