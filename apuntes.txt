@@ -36,6 +36,14 @@ de elegir otro CV con menor cantidad de validación.
 > Mala lectura en los archivos cv-4, cv-5 y cv-2 (formato imagen)
 Se debe cambiar el método de lectura de imágenes, ya que los escaneos son en PDF
 > Revisar la validación de ocupar un CV ya ocupado por otro candidato o si el elegido es el mismo que ocupaba antes de la actualización
+> En ocasiones no se cierra el dropdown haciendo que no se vea el botón de enviar
+> Está ambiguo el hecho de ingresar un nuevo email en la sección de 'actualizar candidato'.
+Una buena implementación sería hacer un dropdown de los emails existentes y dar la opción de eliminarlos
+y dejar el campo de email como 'agregar email (opcional)' pero como sección aparte (fuera del formulario principal)
+> Si se elimina un usuario, ¿Qué pasa con la oferta? Evaluar esa situación, 
+dado que las llaves foráneas harían lío. ¿Será la solución crear un objeto
+el cual sea como 'Indefinido'? Así no hay errores de bindeo en las FK.
+
 Tecnologías:
 Backend: Python, con el microframework Flask
 Frontend: HTML, CSS, Bootstrap y próximamente React.js
@@ -44,6 +52,6 @@ Frontend: HTML, CSS, Bootstrap y próximamente React.js
 > Solución incompatibilidad bs3 y bs4
 	https://stackoverflow.com/questions/31014635/best-way-to-implement-different-bootstrap-versions-on-the-same-page
 > El problema del unique de archivo se debe a que por DEFAULT
-tengo default.jpg! Corregir
+tengo default.jpg (creo)
 > Solución a la redundancia de la función inicialize() cada vez que se aplica a la ruta '\home'
 	https://stackoverflow.com/questions/31259783/how-to-execute-a-block-of-code-only-once-in-flask

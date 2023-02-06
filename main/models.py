@@ -8,7 +8,9 @@ def load_user(user_id):
 
 def inicialize():
     if Status.query.all()== []:
-
+        #-------------------------------------------
+        # Ingreso los tipos independientes (estados, categorías y tipos)
+        #-------------------------------------------
         ob1 = Status(name='Activo',classification='Trabajo')
         ob2 = Status(name='Finalizado',classification='Trabajo')
 
@@ -24,18 +26,39 @@ def inicialize():
         type_1 = Type(nametype='Candidato')
         type_2 = Type(nametype='Administrador')
         type_3 = Type(nametype='Usuario')
-
-        db.session.add(type_2)
-        # admin = User(name='admin', password='admin', username='admin_username', type=type_2.id)
-        # db.session.add(admin)
-        # print(admin.id)
-        # email_admin = E_mail(name = 'administrador@gmail.com', user_id=admin.id)
-        # db.session.add(email_admin)
-        db.session.add_all([ob1,ob2, ob3, ob4, ob5, obs6, obs7, obs8, obs9, type_1, type_3])
-        print('Inserción inicial realizada')
+        db.session.add_all([ob1,ob2, ob3, ob4, ob5, obs6, obs7, obs8, obs9, type_1, type_2, type_3])
         db.session.commit()
+        #-------------------------------------------
+        # Ingreso un administrador a BD
+        #-------------------------------------------
+        email = E_mail(name='administrador@gmail.com')
+        admin = User(name='nombre-administrador', username='admin', password='admin', type=type_2.id, email=email)
+        db.session.add(email)
+        db.session.add(admin)
+        db.session.commit()
+        #-------------------------------------------
+        # Le asocio un email una vez ingresado el admin en el sistema vía commit
+        # (ya que si no está en el sistema su id es None, por lo tanto
+        # al hacer user_id=admin.id estaría en None)
+        #-------------------------------------------
+        #email = E_mail(name='administrador@gmail.com', user_id=admin.id)
+
+       # db.session.commit()        
+        print('Inserción inicial realizada')
+        print('-------------------')
+        print(admin)
+        print(email)
+        ass = E_mail.query.filter_by(user_id=1).first()
+        print(ass)
+        print('--------X---X--------')
+
+        #db.drop_all()
+        #db.create_all()
+ 
     else:
         print("Ya existen elementos iniciales")
+        #db.drop_all()
+        #db.create_all()
 
 class Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,7 +72,7 @@ class Status(db.Model):
     def __repr__(self): 
         return f"Status ('{self.name}', '{self.classification}' )"
 
-
+#(1,1) Usuario - Email
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -111,11 +134,20 @@ class User(db.Model, UserMixin):
     candidates = db.relationship('Candidate', secondary=candidate_user, backref='users')
     categories = db.relationship('Category', secondary=category_user, backref='users')
 
-    email = db.Column(db.String(50), db.ForeignKey('e_mail.id'))
     type = db.Column(db.Integer, db.ForeignKey('type.id'))
 
+
+    email = db.relationship('E_mail', backref='email', uselist=False)
+
+
+
+
+
+
+
+
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"User('{self.id}', '{self.name}', '{self.password}', '{self.email}', '{self.username}', '{self.creation_date}', '{self.type}')"
+        return f"User('Id: {self.id}', Name: '{self.name}', Password: '{self.password}', Email: '{self.email}', Username: '{self.username}', Date: '{self.creation_date}', Type'{self.type}')"
 
 
 class Offer(db.Model):
@@ -135,12 +167,15 @@ class Offer(db.Model):
 class E_mail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id')) #fk
-    #status_id = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'))
-    user_id = db.relationship('User', backref='e_mail', lazy='dynamic') #fk
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'), nullable=True) #fk
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+##############################################################
+
 
     def __repr__(self):
         return f"Email('{self.id}', '{self.name}')"
+
 
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -159,3 +194,4 @@ class Phone(db.Model):
 
     def __repr__(self):
         return f"Phone('{self.id}', '{self.name}', '{self.candidate_id}')"
+
