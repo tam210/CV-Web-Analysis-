@@ -9,7 +9,7 @@ import seaborn as sns
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'
 
-terms = {'Quality/Six Sigma':['black belt','capability analysis','control charts','doe','dmaic','fishbone',
+terms2 = {'Quality/Six Sigma':['black belt','capability analysis','control charts','doe','dmaic','fishbone',
                               'gage r&r', 'green belt','ishikawa','iso','kaizen','kpi','lean','metrics',
                               'pdsa','performance improvement','process improvement','quality',
                               'quality circles','quality tools','root cause','six sigma',
@@ -35,6 +35,61 @@ terms = {'Quality/Six Sigma':['black belt','capability analysis','control charts
         'Healthcare':['adverse events','care','clinic','cphq','ergonomics','healthcare',
                       'health care','health','hospital','human factors','medical','near misses',
                       'patient','reporting system']}
+
+
+terms = {#'Pensamiento crítico y resolutivo':[],      
+        #'Colaboración y trabajo en equipo':[],
+        #'Trabajo ético y profesionalismo':[],        
+        #'Experiencias':['certificado', 'certificaciones', 'diplomado', 'diplomados', 'tutorías', 'asesorías',
+        # 'máster'],        
+        'Herramientas digitales':['herramientas digitales', 'digital', 'online', 'teletrabajo',
+                                'virtual', 'automatización', 'capacitación digital',
+                                'virtualidad', 'e-learning', 'e learning', 'elearning', 'tecnologías',
+                                'tecnología', 'clima de aula', 'tic', 'tics', 'ti', 'zoom', 'teams', 'office',
+                                'microsoft teams', 'videoconferencia', 'videoconferencias', 'aplicaciones digitales',
+                                'recursos digitales', 'digitalización', 'tecnologías de información', 'drive',
+                                'powerpoint', 'word', 'excel', 'classroom', 'meet', 'libros digitales', 'aula virtual',
+                                'aula inteligente', 'aulas inteligentes', 'kahoot', 'socrative', 'padlet', 'edapp',
+                                'seesaw', 'docs', 'mindmeister', 'bibliotecas virtuales', 'biblioteca virtual', 'tic\'s', 
+                                'pizarra digital'],
+                                
+        'Habilidades blandas':['reconocimiento', 'escucha activa', 'voz activa', 
+                                    'juicio', 'asertivo', 'asertiva', 'asertividad', 'autenticidad',
+                                    'honestidad', 'honesto', 'honesta','auténtico', 'auténtica',
+                                    'lenguaje corporal', 'expresivo', 'expresiva', 'breve', 'conciso',
+                                    'claro', 'confianza', 'confiable', 'congruente', 'considerado',
+                                    'considerada', 'debate', 'contacto visual',
+                                    'buen comunicador', 'amable', 'humor', 'multimodal', 'reflexiva', 'reflexivo',
+                                    'motivación', 'motivado', 'motivada','oratoria', 'cuestionamiento',
+                                    'capacidad de respuesta', 'comunicación no verbal', 'escuchar activamente',
+                                    'feedback', 'retroalimentación', 'retroalimentando', 'hablar en público',
+                                    'respetuoso', 'respetuosa', 'respeto', 'comunicación efectiva', 'atento', 'diligente',
+                                    'atenta', ],
+
+        'Habilidades profesionales':['iniciativa', 'integridad', 'integro','íntegra', 'liderazgo',
+                            'flexibilidad', 'flexible', 'persistente', 'persistencia',
+                            'organización', 'organizado', 'organizada', 'comunicación oral y escrita', 'bilingue',
+                            'inclusivo', 'inclusiva', 'resolución de conflictos', 'metas',
+                            'analítico', 'analítica', 'colaboración', 'colaborador', 'colaboradora', 'planificador', 'estratega', 'creativo',
+                            'creativa', 'administración del tiempo', 'paciente', 'resiliente', 'resiliencia', 'encargado',
+                            'encargada', 'responsable', 'tutoría', 'proactivo',
+                            'flexible','perserverante', 'vocación', 'empatía', 'empático', 'empática', 'cooperativo', 'cooperativa',
+                            
+                            ],
+        'Manejo en el aula':['educación especial', 'centrada en el estudiante'
+                        'participación de padres', 'aprendizaje interactivo',
+                        'desarrollo del plan de estudios', 'estilos de aprendizaje',
+                        'estrategias de enseñanza', 'planificación',
+                        'estrategias de disciplina', 'gestión de disciplina', 'evaluación educativa',
+                        'pei', 'metodologías de enseñanza', 'tecnología educativa', 'apoyo al estudiante',
+                        'instrucción en el aula', 'interdisciplinario', 'enseñanza didáctica', 'enseñanza lúdica',
+                        'lúdica', 'lúdico', 'didáctica', 'didáctico', 'tutelado', ]}
+
+
+
+
+
+
 
 def getEmail(texto):
     try:

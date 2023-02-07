@@ -34,9 +34,32 @@ def home():
     candidates = Candidate.query.paginate(page=page, per_page=5)
     return render_template('home.html',candidates=candidates)
 
-@app.route("/ressume", methods=['GET', 'POST'])
-def ressume():
-    return render_template('ressume.html')
+
+@app.route("/candidates/category/<int:category_id>", methods=['GET', 'POST'])
+def candidates(category_id):
+    #page = request.args.get('page', 1, type=int) #default=1
+    if not category_id:
+        candidates = Candidate.query.all()
+        #candidates = Candidate.query.paginate(page=page, per_page=5)
+        print("Vale 0")
+    else:
+        print("NO vale 0")
+        category = Category.query.get(category_id)
+        print(category)
+        candidates = Candidate.query.filter_by(category_id=category.id)
+        if candidates:
+            print("si")
+        #candidates.paginate(page=page, per_page=5)
+            #return redirect(url_for('home', category_id=category.id))
+
+    #page = request.args.get('page', 1, type=int) #default=1
+    #candidates = Candidate.query.paginate(page=page, per_page=5)
+    return render_template('candidates.html',candidates=candidates)
+
+
+
+
+
 
 @app.route("/get_analysis", methods=['GET', 'POST'])
 def get_analysis():
