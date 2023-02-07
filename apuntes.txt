@@ -1,32 +1,57 @@
-url_for('nombre de la FUNCION de la ruta, no la ruta /ruta', parametros)
-- según el área que se muestre el cuadro de resumen
+*Apuntes*
+> url_for('nombre de la FUNCIÓN de la ruta, no la ruta /ruta', parametros)
+
+*Ideas*
+> Según el área que se muestre el cuadro de resumen
 	e.g: Área: Informática
 	     Indicadores del DF: Gestión de proyectos 
-			 	 Ingeniería de software
- 			 	 Dominio de lenguajes
-			 	 Capacidad de aprendizaje
-				 Creatividad
+							 Ingeniería de software
+							 Dominio de lenguajes
+							 Capacidad de aprendizaje
+							 Creatividad
 
-- Muchos postulantes pueden POSTULAR a un mismo empleo. Falta hacer ese filtro
-- Código de trabajo
-	- Ej Julio posutla al empleo ID 89
+> Muchos postulantes pueden POSTULAR a un mismo empleo. Implementar modelo que soporte.
 > Al hacer click en la oferta, se hace necesario mostrar los candidatos que postulan en un tipo de formato:
-	- Eduardo Venegas. Estado: En evaluación
-Sería una buena funcionalidad de que cuando se cierre la oferta (estado = Finalizado) se cambie el estado
+	e.g:     Eduardo Venegas   		Estado: En evaluación
+> Sería una buena funcionalidad de que cuando se cierre la oferta (estado = Finalizado) se cambie el estado
 de todos los postulantes que fueran aprobados a aprobado (estado = Aprobado) y los restantes al estado reprobado
 (estado = Reprobado)
-- Control de error: Si la oferta está finalizada no se puede cambiar el tipo del candidato
-- Envío de correo automático personalizado en caso de finalizar la convocatoria 
+> Control de error: Si la oferta está finalizada, no se puede cambiar el tipo del candidato
+> Envío de correo automático personalizado en caso de finalizar la convocatoria 
 (habilitar opción y mostrar preview)
+> Utilizar CKEditor para mayor flexibilidad al personalizar la descripción de un candidato y/o los emails a enviar, utilizando CKEditor de Flask
 
-Dudas
-1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail? Pues para indicar que el correo ingresado
-es extraído del CV automáticamente o ingresado manualmente. Sería más necesario si se extrae más de un correo,
+*Dudas*
+1. ¿Se hace necesario hacer una variable 'tipo' en la clase E_mail para indicar que el correo ingresado
+es extraído del CV automáticamente o ingresado manualmente? Sería más necesario si se extrae más de un correo,
 pero actualmente está obteniendo el primer elemento. La ventaja de esto es que obtiene inmediatamente el correo,
 ya que usualmente este está al principio del documento, así no se confunde con otro caracter extraño que contenga
-la misma estructura de un correo
+la misma estructura de un correo.
+2. Para evitar más eficientemente el problema de ingresar un CV,
+¿Sería mejor crear una clase 'CV' con sus atributos? De esa forma me aseguro que el CV ya exista y el candidato tenga mayor libertad
+de elegir otro CV con menor cantidad de validación.
 
-Errores y problemas
-Combinación de ingles con español //PARSEADO A INGLÉS
-Mala lectura en los archivos cv-4, cv-5 y cv-2 (formato imagen)
+*Errores y problemas*
+> Combinación de ingles con español /%%/CORREGIDO: PARSEADO A INGLÉS
+> Mala lectura en los archivos cv-4, cv-5 y cv-2 (formato imagen)
 Se debe cambiar el método de lectura de imágenes, ya que los escaneos son en PDF
+> Revisar la validación de ocupar un CV ya ocupado por otro candidato o si el elegido es el mismo que ocupaba antes de la actualización
+> En ocasiones no se cierra el dropdown haciendo que no se vea el botón de enviar
+> Está ambiguo el hecho de ingresar un nuevo email en la sección de 'actualizar candidato'.
+Una buena implementación sería hacer un dropdown de los emails existentes y dar la opción de eliminarlos
+y dejar el campo de email como 'agregar email (opcional)' pero como sección aparte (fuera del formulario principal)
+> Si se elimina un usuario, ¿Qué pasa con la oferta? Evaluar esa situación, 
+dado que las llaves foráneas harían lío. ¿Será la solución crear un objeto
+el cual sea como 'Indefinido'? Así no hay errores de bindeo en las FK.
+
+Tecnologías:
+Backend: Python, con el microframework Flask
+Frontend: HTML, CSS, Bootstrap y próximamente React.js
+
+*Soluciones a implementar*
+> Solución incompatibilidad bs3 y bs4
+	https://stackoverflow.com/questions/31014635/best-way-to-implement-different-bootstrap-versions-on-the-same-page
+> El problema del unique de archivo se debe a que por DEFAULT
+tengo default.jpg (creo)
+> Solución a la redundancia de la función inicialize() cada vez que se aplica a la ruta '\home'
+	https://stackoverflow.com/questions/31259783/how-to-execute-a-block-of-code-only-once-in-flask

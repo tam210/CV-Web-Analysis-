@@ -4,9 +4,8 @@ from werkzeug.utils import secure_filename
 import os
 from main.analysis import obtenerDF_Email
 from main import app, db, bcrypt
-from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize
+from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize, offer_candidate
 from sqlalchemy.exc import SQLAlchemyError
-
 
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -72,13 +71,35 @@ def register():
         hashed_paswword = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(name=form.name.data, 
                         password=hashed_paswword, 
-                        email=form.email.data, 
+                        
                         username=form.username.data)
-        type_id = Type.query.filter_by(nametype=NAMETYPE_USER_USER).first().id
-        user.type = type_id
-        print("--------------------------",user)
+        type_id = Type.query.filter_by(nametype=NAMETYPE_USER_USER).first()
+        email = E_mail(name=form.email.data)
+        #user.email = email.id
+        email.user = user
+        user.type = type_id.id
+        db.session.add(email)
         db.session.add(user)
-        db.session.commit()
+        try:        
+            db.session.commit()
+            a = User.query.all()
+            asss = E_mail.query.all()
+            print(a)
+            print(asss)
+            print("\n\n\n")
+        except:
+            print("\n\nError haciendo el commit\n\n")
+        #print("Tipo:\n",user,"\n")
+        #Si lo imprimo falla pq trata de accesar al type q no tiene id
+        #print("Tipo:\n",user,"\n")
+        
+        #db.session.commit()
+
+        #asd = User.query.all().first()
+        #print("\n\n\n\n\n")
+        #print(asd)
+
+        #print("--------------------------",user)
         flash(f'Tu cuenta ha sido creada, {form.username.data}!', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
@@ -90,13 +111,19 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            next_page = request.args.get('next') #args: diccionario
-            return redirect(next_page) if next_page else redirect(url_for('home'))
+        email = E_mail.query.filter_by(name=form.email.data).first()
+        if email:
+            user = User.query.get(email.user_id)
+            password_checked = bcrypt.check_password_hash(user.password, form.password.data)
+            print("\n\n----------------xX ", password_checked)
+            if user and bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                next_page = request.args.get('next') #args: diccionario
+                return redirect(next_page) if next_page else redirect(url_for('home'))
+            else:
+                flash('Inicio de sesión fallido. Intente nuevamente')
         else:
-            flash('Inicio de sesión fallido.')
+            flash('El email ingresado no existe')
     return render_template('login.html', title='Login', form=form)
 
 @app.route("/logout")
@@ -108,6 +135,7 @@ def logout():
 @login_required
 def account():
     #image_file=url_for('static', filename='files/'+current_user.image_file)
+    print(current_user.email)
     return render_template('account.html', title='Account')
 
 
@@ -192,13 +220,22 @@ def create_candidate():
 @app.route("/candidates/<int:candidate_id>", methods=['GET', 'POST'])
 def candidate(candidate_id):
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
-    
+    offers = Offer.query.all()
     candidate = Candidate.query.get_or_404(candidate_id)
     image_file=url_for('static', filename='files/'+candidate.file)
-    print("XXXXXXXXXXXXXXXXXXXXXXX")
-    print(candidate.phones)
-    print("XXXXXXXXXXXXXXXXXXXXXXX")
-    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file)
+
+    select = request.form.getlist('skills')
+
+    for i in select:
+        oferta = Offer.query.get(i)
+        if oferta not in candidate.offers:
+            oferta.candidates.append(candidate)
+            flash('Oferta postulada', 'success')
+        else:
+            flash('La oferta ya se encuentra postulada', 'danger')
+    db.session.commit()
+    #print(oferta.candidates)    
+    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers)
 
 
 @app.route("/candidates/<int:candidate_id>/update", methods=['GET', 'POST'])
@@ -223,14 +260,14 @@ def update_candidate(candidate_id):
                 em = E_mail(name=form.email.data, candidate_id=candidate.id)
                 db.session.add(em)
             else:
-                print ("---------------------NNN----")
+                print ("-------------------------")
         # Si introdujo un teléfono manualmente
         if form.phone.data:
             if not Phone.query.filter_by(name=form.phone.data).first():
                 ph = Phone(name=form.phone.data, candidate_id=candidate.id)
                 db.session.add(ph)
             else:
-                print ("---------------------NNN----")
+                print ("-------------------------")
         
         #Si se introdujo un archivo distinto al que tenía el candidato
         if form.file.data != candidate.file:
@@ -357,6 +394,18 @@ def offers():
 
 @app.route("/offers/<int:offer_id>", methods=['GET', 'POST'])
 def offer(offer_id):
+    candidates = Candidate.query.all()
     offer = Offer.query.get_or_404(offer_id)
-    return render_template('offer.html', title=offer_id, offer=offer)
+    select = request.form.getlist('skills')
+
+    for i in select:
+        candidate = Candidate.query.get(i)
+        if candidate not in offer.candidates:
+            candidate.offers.append(offer)
+            flash('Candidato postulado', 'success')
+        else:
+            flash('El candidato ya se encuentra postulado', 'danger')
+    db.session.commit()
+
+    return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates)
 

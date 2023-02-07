@@ -1,5 +1,24 @@
 {% extends "layout.html" %}
 {% block content %}
+
+    <h4 >Postular candidatos a la oferta</h4>
+    <div class="container">
+        <div class="col-md-4 row" >
+            <form method="post" id="multiple_select_form" action="{{ url_for('offer', offer_id=offer.id) }}">
+            <select name="skills" id="skills" class="form-control selectpicker" data-live-search="true" multiple>
+                {% for candidate in candidates %}
+                    {% if candidate.category == offer.category%}
+                        <option value="{{candidate.id}}">{{candidate.name}}, ID {{candidate.id}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <input type="hidden" name="hidden_skills" id="hidden_skills" />
+            <input type="submit" name="submit" class="mt-2 btn btn-info" value="Enviar" />
+            </form>
+        </div>
+    </div>
+
+
     <article class="media content-section">
         <div class="media-body">
             <div class="article-metadata">
@@ -10,7 +29,25 @@
             </div>
             <h2><a class="article-title" href="#">{{ offer.name }}</a></h2>
             <p class="article-content">{{ offer.description }}</p>
+        
+            <p class="font-weight-bold  article-content">Candidatos postulados
+                <ul>
+                    {% if offer.candidates %}
+                        {% for candidate in offer.candidates %}
+                        <li>
+                            <a href="{{ url_for('candidate', candidate_id=candidate.id) }}">{{candidate.name}}</a>
+                        </li>                    
+                        {% endfor %}
+                    {% else %}
+                        No tiene candidatos postulados 
+                    {% endif %}
+                </ul>
+            </p>
+
+
         </div>
+
+
+
     </article>
-    <h4>Candidatos postulantes</h4>
 {% endblock content %}

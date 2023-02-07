@@ -11,7 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' #path, /// para ppth
                                                                #///: debe estar en la carpeta
                                                                #de este proyecto
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+db = SQLAlchemy(app) #Creo la instancia de la BD
 app.app_context().push()
 
 

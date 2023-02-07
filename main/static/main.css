@@ -9,7 +9,7 @@ body {
   }
   
   .bg-steel {
-    background-color: #315a80;
+    background-color: #1a1433;
   }
   
   .site-header .navbar-nav .nav-link {
@@ -97,4 +97,9 @@ tr:nth-child(even){
 }
 tr:hover{ 
   background-color: #ade1ff;
+}
+
+.dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
 }

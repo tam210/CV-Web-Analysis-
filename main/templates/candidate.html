@@ -1,5 +1,42 @@
 {% extends "layout.html" %}
 {% block content %}
+
+    <!-- <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+          Dropdown
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+          <li><input type="text" class="form-control" id="search-input" placeholder="Search"></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#">Action</a></li>
+          <li><a href="#">Another action</a></li>
+          <li><a href="#">Something else here</a></li>
+          <li><a href="#">Separated link</a></li>
+        </ul>
+      </div>
+       -->
+
+<!--  DROPDOWN W SEARCH N MULTIPLE SELECT -->
+    <h4>Postular candidato a ofertas</h4>
+    <div class="container">
+        <div class="col-md-4 row" >
+            <form method="post" id="multiple_select_form" action="{{ url_for('candidate', candidate_id=candidate.id) }}">
+            <select name="skills" id="skills" class="form-control selectpicker" data-live-search="true" multiple>
+                {% for of in offers %}
+                    {% if of.category == candidate.category%}
+                        <option value="{{of.id}}">{{of.name}}, ID {{of.id}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <input type="hidden" name="hidden_skills" id="hidden_skills" />
+            <input type="submit" name="submit" class="mt-2 btn btn-info" value="Enviar" />
+            </form>
+ 
+        </div>
+    
+    </div>
+
     <article class="media content-section">
         <div class="media-body">
             <div class="article-metadata">
@@ -16,7 +53,7 @@
             <h2><a class="article-title" href="#">{{ candidate.name }}</a></h2>
             <p class="article-content">{{ candidate.description }}</p>
             
-            <p class="article-content text-justify">Contacto: 
+            <p class="font-weight-bold article-content text-justify">Contacto: 
                 <ul>
                     {% for ph in candidate.phones %}
                     <li>
@@ -26,7 +63,7 @@
                 </ul>
             </p>
         
-            <p class="article-content">Emails: 
+            <p class="font-weight-bold article-content">Correo electrónico: 
                 <ul>
                     {% for em in candidate.emails %}
                     <li>
@@ -37,10 +74,26 @@
             </p>
         
 
+            <p class="font-weight-bold article-content">Ofertas postuladas:
+                <ul>
+                    {% if candidate.offers %}
+                        {% for offer in candidate.offers %}
+                        <li>
+                            <a href="{{ url_for('offer', offer_id=offer.id) }}">{{offer.name}}</a>
+                        </li>                    
+                        {% endfor %}
+
+                    {% else %}
+                        No tiene ofertas asociadas 
+                    {% endif %}
+                </ul>
+            </p>
+
+
             {% if candidate.file %}
                 <a class="mr-2" href="{{ url_for('analysis', file=candidate.file) }}">Generar análisis</a>
                 
-                <div class="container">
+                <div>
                     <div class="col-md-12 px-0 mt-5">
                         <h5>Vista previa</h5>
                         <img src="{{ image_file }}" class="img-fluid">
@@ -74,4 +127,7 @@
         </div>
         </div>
     </div>
+
+
+
 {% endblock content %}
