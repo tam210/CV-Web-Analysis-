@@ -24,11 +24,11 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('El usuario ingresado ya existe.')
 
     def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
+        em = E_mail.query.filter_by(name=email.data).first()
+        if em:
             raise ValidationError('El email ingresado ya existe.')
 
-            
+
 class LoginForm(FlaskForm):
     email = StringField('Email',  
                             validators=[DataRequired(), Email()])

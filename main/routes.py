@@ -71,13 +71,35 @@ def register():
         hashed_paswword = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(name=form.name.data, 
                         password=hashed_paswword, 
-                        email=form.email.data, 
+                        
                         username=form.username.data)
-        type_id = Type.query.filter_by(nametype=NAMETYPE_USER_USER).first().id
-        user.type = type_id
-        print("--------------------------",user)
+        type_id = Type.query.filter_by(nametype=NAMETYPE_USER_USER).first()
+        email = E_mail(name=form.email.data)
+        #user.email = email.id
+        email.user = user
+        user.type = type_id.id
+        db.session.add(email)
         db.session.add(user)
-        db.session.commit()
+        try:        
+            db.session.commit()
+            a = User.query.all()
+            asss = E_mail.query.all()
+            print(a)
+            print(asss)
+            print("\n\n\n")
+        except:
+            print("\n\nError haciendo el commit\n\n")
+        #print("Tipo:\n",user,"\n")
+        #Si lo imprimo falla pq trata de accesar al type q no tiene id
+        #print("Tipo:\n",user,"\n")
+        
+        #db.session.commit()
+
+        #asd = User.query.all().first()
+        #print("\n\n\n\n\n")
+        #print(asd)
+
+        #print("--------------------------",user)
         flash(f'Tu cuenta ha sido creada, {form.username.data}!', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
@@ -90,16 +112,18 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         email = E_mail.query.filter_by(name=form.email.data).first()
-        print(email, '--------------------')
-        user = User.query.filter_by(email=email.name).first()
-        #version antigua:
-        #user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            next_page = request.args.get('next') #args: diccionario
-            return redirect(next_page) if next_page else redirect(url_for('home'))
+        if email:
+            user = User.query.get(email.user_id)
+            password_checked = bcrypt.check_password_hash(user.password, form.password.data)
+            print("\n\n----------------xX ", password_checked)
+            if user and bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                next_page = request.args.get('next') #args: diccionario
+                return redirect(next_page) if next_page else redirect(url_for('home'))
+            else:
+                flash('Inicio de sesión fallido. Intente nuevamente')
         else:
-            flash('Inicio de sesión fallido.')
+            flash('El email ingresado no existe')
     return render_template('login.html', title='Login', form=form)
 
 @app.route("/logout")
@@ -111,6 +135,7 @@ def logout():
 @login_required
 def account():
     #image_file=url_for('static', filename='files/'+current_user.image_file)
+    print(current_user.email)
     return render_template('account.html', title='Account')
 
 

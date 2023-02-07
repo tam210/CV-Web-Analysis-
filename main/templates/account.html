@@ -6,7 +6,7 @@
         <h2 class="account-heading">{{ current_user.username }}</h2>
 
         <p class="text-secondary">
-            {{current_user.email}}<br>
+            {{current_user.email.name}}<br>
             Creado el {{ current_user.creation_date.strftime('%Y-%m-%d') }} a las {{ current_user.creation_date.strftime('%H:%M') }} hrs. <br>
             Tipo: {{current_user.type}}<br>
             

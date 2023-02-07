@@ -32,10 +32,12 @@ def inicialize():
         # Ingreso un administrador a BD
         #-------------------------------------------
         email = E_mail(name='administrador@gmail.com')
-        admin = User(name='nombre-administrador', username='admin', password='admin', type=type_2.id, email=email)
+        admin = User(name='nombre-administrador', username='admin', password='admin', type=type_2.id)
+        email.user = admin
         db.session.add(email)
         db.session.add(admin)
         db.session.commit()
+        #asd = E_mail.query.filter_by(name='administrador@gmail.com').first()
         #-------------------------------------------
         # Le asocio un email una vez ingresado el admin en el sistema vía commit
         # (ya que si no está en el sistema su id es None, por lo tanto
@@ -48,13 +50,18 @@ def inicialize():
         print('-------------------')
         print(admin)
         print(email)
-        ass = E_mail.query.filter_by(user_id=1).first()
-        print(ass)
-        print('--------X---X--------')
 
+        #ass = E_mail.query.filter_by(user_id=1).first()
+        print('--------X---X--------')
+        print('---------YYYYY----------')
+        a=User.query.get(1)
+        print(a.email)
+        print(a.email.id)
+        # a=User.query.filter_by(email = )
+        print('---------YYYYY----------')
         #db.drop_all()
         #db.create_all()
- 
+        print("a")
     else:
         print("Ya existen elementos iniciales")
         #db.drop_all()
@@ -127,6 +134,7 @@ offer_candidate = db.Table('offer_candidate',
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
+    # password = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(50), nullable=False)
     username = db.Column(db.Integer, unique=True, nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -137,7 +145,8 @@ class User(db.Model, UserMixin):
     type = db.Column(db.Integer, db.ForeignKey('type.id'))
 
 
-    email = db.relationship('E_mail', backref='email', uselist=False)
+    email = db.relationship('E_mail', uselist=False, backref='user')
+    #email = db.relationship('E_mail', back_populates='email', uselist=False)
 
 
 
@@ -170,6 +179,7 @@ class E_mail(db.Model):
     candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'), nullable=True) #fk
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    #user_id = db.relationship('User', back_populates='user')
 ##############################################################
 
 
