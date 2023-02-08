@@ -167,24 +167,24 @@ def create_candidate():
     form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
     if form.validate_on_submit():
         try:
-            ff = form.file.data
+            #ff = form.file.data
             cand = Candidate(name=form.name.data,
                                 category_id=form.category.data.id, 
                                 status_id=form.status.data.id, 
-                                file=form.file.data, 
+                                #file=form.file.data, 
                                 description=form.description.data)
             type_id = Type.query.filter_by(nametype=NAMETYPE_USER_CANDIDATE).first().id
             print(cand,"---", type_id)
             cand.type = type_id
             #Si se introdujo un archivo distinto al que tenía el candidato
-            if form.file.data != cand.file:
-                # Si no existe un candidato con ese archivo
-                if not Candidate.query.filter_by(file=form.file.data).first():
-                    cand.file = form.file.data
-                else:
-                    flash('El archivo ingresado pertenece a otro candidato.')
-            else:
-                cand.file = form.file.data
+            # if form.file.data != cand.file:
+            #     # Si no existe un candidato con ese archivo
+            #     if not Candidate.query.filter_by(file=form.file.data).first():
+            #         cand.file = form.file.data
+            #     else:
+            #         flash('El archivo ingresado pertenece a otro candidato.')
+            # else:
+            #     cand.file = form.file.data
 
             
             db.session.add(cand)
@@ -193,22 +193,27 @@ def create_candidate():
             #--------------------------------------------
             # Si ingresó un archivo
             #--------------------------------------------
-            if form.file.data:
-                # Obtengo el email y teléfono del documento
-                _, email, phone = obtenerDF_Email(ff)
-                # Si se obtuvo un email válido (no nulo)
-                if email: 
-                    # Si no existe un email con ese nombre se puede ingresar uno nuevo
-                    if not E_mail.query.filter_by(name=email).first():
-                        em2 = E_mail(name = email, candidate_id=cand.id, extracted_y_n='Y')
-                        db.session.add(em2)
-                    # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
-                # Si se obtuvo un contacto válido (no nulo)
-                if phone:
-                    # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
-                    if not Phone.query.filter_by(name=phone).first():
-                        ph2 = Phone(name = phone, candidate_id=cand.id, extracted_y_n='Y')
-                        db.session.add(ph2)
+
+
+            # if form.file.data:
+            #     # Obtengo el email y teléfono del documento
+            #     _, email, phone = obtenerDF_Email(ff)
+            #     # Si se obtuvo un email válido (no nulo)
+            #     if email: 
+            #         # Si no existe un email con ese nombre se puede ingresar uno nuevo
+            #         if not E_mail.query.filter_by(name=email).first():
+            #             em2 = E_mail(name = email, candidate_id=cand.id, extracted_y_n='Y')
+            #             db.session.add(em2)
+            #         # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
+            #     # Si se obtuvo un contacto válido (no nulo)
+            #     if phone:
+            #         # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
+            #         if not Phone.query.filter_by(name=phone).first():
+            #             ph2 = Phone(name = phone, candidate_id=cand.id, extracted_y_n='Y')
+            #             db.session.add(ph2)
+
+
+
             #-------------------------------------------
             # Si ingresó un email y teléfono manualmente
             #-------------------------------------------
@@ -349,8 +354,10 @@ def candidate(candidate_id):
     
     offers = Offer.query.all()
     candidate = Candidate.query.get_or_404(candidate_id)
-    image_file=url_for('static', filename='files/'+candidate.file)
-
+    if candidate.file:
+        image_file=url_for('static', filename='files/'+candidate.file)
+    else:
+        image_file=url_for('static', filename='files/default.jpg')
     select = request.form.getlist('skills')
 
     for i in select:
@@ -468,7 +475,7 @@ def update_candidate(candidate_id):
         form.category.data = candidate.category
         form.status.data = candidate.status
         form.description.data = candidate.description
-        form.file.data = candidate.file
+        #form.file.data = candidate.file
 
         # if candidate.emails.count()>0: #si tiene emails registrados
         #     form.name          
