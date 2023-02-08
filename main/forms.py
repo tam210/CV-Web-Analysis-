@@ -37,7 +37,7 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Recuérdame')
 
 class UploadFileForm(FlaskForm):
-    file = FileField("Archivo")
+    file = FileField("Archivo PDF/JPG")
     submit=SubmitField("Subir archivo")
 
 def category_query():

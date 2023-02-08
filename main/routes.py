@@ -74,9 +74,6 @@ def get_analysis():
 
 @app.route("/analysis/<string:file>", methods=['GET', 'POST'])
 def analysis(file):
-    # file = form.file.data
-    # ff = file.filename
-    # resumen = getRessumeDF(file)
     ressume, email, phone = obtenerDF_Email(file)
     plot_img = url_for('static', filename='files/'+'resume_results.png')
 
@@ -97,7 +94,7 @@ def register():
                         
                         username=form.username.data)
         type_id = Type.query.filter_by(nametype=NAMETYPE_USER_USER).first()
-        email = E_mail(name=form.email.data)
+        email = E_mail(name=form.email.data, extracted_y_n='N')
         #user.email = email.id
         email.user = user
         user.type = type_id.id
@@ -137,8 +134,8 @@ def login():
         email = E_mail.query.filter_by(name=form.email.data).first()
         if email:
             user = User.query.get(email.user_id)
-            password_checked = bcrypt.check_password_hash(user.password, form.password.data)
-            print("\n\n----------------xX ", password_checked)
+            #password_checked = bcrypt.check_password_hash(user.password, form.password.data)
+            #print("\n\n----------------xX ", password_checked)
             if user and bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
                 next_page = request.args.get('next') #args: diccionario
@@ -203,14 +200,14 @@ def create_candidate():
                 if email: 
                     # Si no existe un email con ese nombre se puede ingresar uno nuevo
                     if not E_mail.query.filter_by(name=email).first():
-                        em2 = E_mail(name = email, candidate_id=cand.id)
+                        em2 = E_mail(name = email, candidate_id=cand.id, extracted_y_n='Y')
                         db.session.add(em2)
                     # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
                 # Si se obtuvo un contacto válido (no nulo)
                 if phone:
                     # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
                     if not Phone.query.filter_by(name=phone).first():
-                        ph2 = Phone(name = phone, candidate_id=cand.id)
+                        ph2 = Phone(name = phone, candidate_id=cand.id, extracted_y_n='Y')
                         db.session.add(ph2)
             #-------------------------------------------
             # Si ingresó un email y teléfono manualmente
@@ -218,13 +215,13 @@ def create_candidate():
             #Si ingresó un email en el formulario crea un email nuevo
             if form.email.data:
                 print("Email agregado por formulario")
-                em = E_mail(name=form.email.data, candidate_id=cand.id)
+                em = E_mail(name=form.email.data, candidate_id=cand.id, extracted_y_n='N')
                 print("\n\nEMAIL A INGRESAR",em)
                 db.session.add(em)
             #Si ingresó un teléfono en el formulario crea un email nuevo
             if form.phone.data:
                 print("Telefono agregado por formulario")
-                ph = Phone(name=form.phone.data, candidate_id=cand.id)
+                ph = Phone(name=form.phone.data, candidate_id=cand.id, extracted_y_n='N')
                 db.session.add(ph)
             #Si ingresó un email en el formulario crea un email nuevo
             db.session.commit()
@@ -242,7 +239,114 @@ def create_candidate():
 
 @app.route("/candidates/<int:candidate_id>", methods=['GET', 'POST'])
 def candidate(candidate_id):
+    candidate = Candidate.query.get_or_404(candidate_id)
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
+    form=UploadFileForm()
+    # user_form = UserAdd()
+    if form.validate_on_submit():
+        print("           -            ")
+        print(form.file.data)
+        ff=form.file.data
+        #print(form.file.data.filename)
+        #ff = form.file.data.filename
+        #Si ingresó algo no nulo
+        if form.file.data:
+            print("\n\n\n\n")
+            print("\n\nINGRESÓ UN ARCHIVO\n\n")
+            #Si el archivo ingresado no es nulo y es distinto al original
+            # CASOS 
+            #       => documento a documento: se reemplazará información de distintas fuentes
+            #       => vacio a documento: se agregará información de una fuente
+            print("\n\nCANDIDATO!!!!!!: FILE",candidate.file,"\n\n")
+            if candidate.file: #Documento a documento: se reemplazará información de distintas fuentes
+                if candidate.file != form.file.data:
+
+                    print("\n\nDOCUMENTO A DOCUMENTO\n\n")
+                    # Obtengo los datos del documento para ver si no se repiten en otro archivo
+                    _, email, phone = obtenerDF_Email(ff)
+                    if email: 
+                        print("INGRESANDO EMAIL")
+                        if not E_mail.query.filter_by(name=email).first():
+                            em2 = E_mail(name = email, candidate_id=candidate.id, extracted_y_n='Y')
+                            #db.session.add(em2)
+                        else:
+                            flash('El archivo ingresado pertenece a otro candidato.', 'danger')
+                            return redirect(url_for('candidate', candidate_id=candidate.id))
+                    if phone:
+                        print("INGRESANDO TELÉFONO")
+                        if not Phone.query.filter_by(name=phone).first():
+                            ph2 = Phone(name = phone, candidate_id=candidate.id, extracted_y_n='Y')
+                            #db.session.add(ph2)            
+                        else:
+                            flash('El archivo ingresado pertenece a otro candidato.', 'danger')
+                            return redirect(url_for('candidate', candidate_id=candidate.id))
+                    print(em2)
+                    if em2: 
+                        db.session.add(em2)  
+                        #db.session.commit()              
+                    if ph2:
+                        db.session.add(ph2)
+                        #db.session.commit()              
+                    #Una vez verificado que el documento a ingresar no choca con nada, borro los registros del documento anterior
+                    # para liberarlos
+                    candidate_extracted_email = E_mail.query.filter_by(candidate_id=candidate.id, extracted_y_n='Y').first()
+                    candidate_extracted_phone = Phone.query.filter_by(candidate_id=candidate.id, extracted_y_n='Y').first()
+                    if candidate_extracted_email:
+                        db.session.delete(candidate_extracted_email)
+                        #db.session.commit()
+                    if candidate_extracted_phone:
+                        db.session.delete(candidate_extracted_phone)
+                        #db.session.commit()
+                    candidate.file = form.file.data
+                    db.session.commit()
+                    
+            else:
+                print("\n\nVACIO A DOCUMENTO\n\n")
+                _, email, phone = obtenerDF_Email(ff)
+                if email: 
+                    print("INGRESANDO EMAIL")
+                    if not E_mail.query.filter_by(name=email).first():
+                        em2 = E_mail(name = email, candidate_id=candidate.id, extracted_y_n='Y')
+                    else:
+                        flash('El archivo ingresado pertenece a otro candidato.', 'danger')
+                        return redirect(url_for('candidate', candidate_id=candidate.id))
+                if phone:
+                    print("INGRESANDO TELÉFONO")
+                    if not Phone.query.filter_by(name=phone).first():
+                        ph2 = Phone(name = phone, candidate_id=candidate.id, extracted_y_n='Y')
+                        #db.session.add(ph2)    lo añado a sesion despues, por si despues se redireciona y queda en sesion        
+                    else:
+                        flash('El archivo ingresado pertenece a otro candidato.', 'danger')
+                        return redirect(url_for('candidate', candidate_id=candidate.id))
+                if em2: 
+                    db.session.add(em2)  
+                #    db.session.commit()              
+                if ph2:
+                    db.session.add(ph2)
+                candidate.file = form.file.data
+                db.session.commit()              
+                #candidate.file = form.file.data
+                flash('Archivo actualizado', 'success')
+                return redirect(url_for('home'))
+            #Vacio a documento: se agregará información de una fuente
+            #else:
+
+        # Si ingresó nulo, que se borren los registros
+        else:
+            print("\n\nNO INGRESÓ UN ARCHIVO\n\n")
+            candidate_extracted_email = E_mail.query.filter_by(candidate_id=candidate.id, extracted_y_n='Y').first()
+            candidate_extracted_phone = Phone.query.filter_by(candidate_id=candidate.id, extracted_y_n='Y').first()
+            if candidate_extracted_email:
+                db.session.delete(candidate_extracted_email)
+                #db.session.commit()
+            if candidate_extracted_phone:
+                db.session.delete(candidate_extracted_phone)
+                #db.session.commit()
+            candidate.file = form.file.data
+            flash('Archivo actualizado', 'success')
+            return redirect(url_for('home'))
+
+    
     offers = Offer.query.all()
     candidate = Candidate.query.get_or_404(candidate_id)
     image_file=url_for('static', filename='files/'+candidate.file)
@@ -258,7 +362,7 @@ def candidate(candidate_id):
             flash('La oferta ya se encuentra postulada', 'danger')
     db.session.commit()
     #print(oferta.candidates)    
-    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers)
+    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers, form=form)
 
 
 @app.route("/candidates/<int:candidate_id>/update", methods=['GET', 'POST'])
@@ -277,32 +381,76 @@ def update_candidate(candidate_id):
     if form.validate_on_submit():
         candidate.name = form.name.data 
         candidate.description = form.description.data
+        candidate.category_id = form.category.data.id
+        candidate.status_id = form.status.data.id
         # Si introdujo un email manualmente
         if form.email.data:
             if not E_mail.query.filter_by(name=form.email.data).first():
-                em = E_mail(name=form.email.data, candidate_id=candidate.id)
+                em = E_mail(name=form.email.data, candidate_id=candidate.id, extracted_y_n='N')
                 db.session.add(em)
             else:
                 print ("-------------------------")
         # Si introdujo un teléfono manualmente
         if form.phone.data:
             if not Phone.query.filter_by(name=form.phone.data).first():
-                ph = Phone(name=form.phone.data, candidate_id=candidate.id)
+                ph = Phone(name=form.phone.data, candidate_id=candidate.id, extracted_y_n='N')
                 db.session.add(ph)
             else:
                 print ("-------------------------")
         
-        #Si se introdujo un archivo distinto al que tenía el candidato
-        if form.file.data != candidate.file:
-            # Si no existe un candidato con ese archivo
-            if not Candidate.query.filter_by(file=form.file.data).first():
-                candidate.file = form.file.data
-                  #PENDIENTE: BORRAR REGISTROS ANTEIRIORES!! EMAILS ANTERIORES PARA LIBERARLOS
-            else:
-                flash('El archivo ingresado pertenece a otro candidato.', 'danger')
-                return redirect(url_for('candidate', candidate_id=candidate.id))
 
-        candidate.file = form.file.data
+
+        # #Si se introdujo un archivo distinto al que tenía el candidato
+        # if form.file.data != candidate.file:
+        #     # Si no existe un candidato con ese archivo
+        #     if not Candidate.query.filter_by(file=form.file.data).first():
+        #         candidate.file = form.file.data
+        #         candidate_extracted_email = E_mail.query.filter_by(candidate_id=candidate.id, extracted_y_n='Y').first()
+        #         candidate_extracted_phone = Phone.query.filter_by(candidate_id=candidate.id, extracted_y_n='Y').first()
+        #         # Borro las extracciones anteriores de emails
+        #         if candidate_extracted_email:
+        #             db.session.delete(candidate_extracted_email)
+        #             db.session.commit()
+        #         if candidate_extracted_phone:
+        #             db.session.delete(candidate_extracted_phone)
+        #             db.session.commit()
+            
+            
+        #     # Extraigo los emails y teléfonos del documento y los asocio al candidato
+        #     ff = form.file.data
+        #     # Si subió un archivo en el formulario
+        #     if form.file.data:
+        #         # Obtengo el email y teléfono del documento
+        #         _, email, phone = obtenerDF_Email(ff)
+        #         # Si se obtuvo un email válido (no nulo)
+        #         if email: 
+        #             # Si no existe un email con ese nombre se puede ingresar uno nuevo
+        #             if not E_mail.query.filter_by(name=email).first():
+        #                 em2 = E_mail(name = email, candidate_id=candidate.id, extracted_y_n='Y')
+        #                 db.session.add(em2)
+        #             else:
+        #                 flash('El archivo ingresado pertenece a otro candidato.', 'danger')
+        #                 return redirect(url_for('candidate', candidate_id=candidate.id))
+
+        #             # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
+        #         # Si se obtuvo un contacto válido (no nulo)
+        #         if phone:
+        #             # Si no existe un teléfono con ese nombre se puede ingresar uno nuevo
+        #             if not Phone.query.filter_by(name=phone).first():
+        #                 ph2 = Phone(name = phone, candidate_id=candidate.id, extracted_y_n='Y')
+        #                 db.session.add(ph2)            
+        #             else:
+        #                 flash('El archivo ingresado pertenece a otro candidato.', 'danger')
+        #                 return redirect(url_for('candidate', candidate_id=candidate.id))
+
+        #         db.session.commit()
+            
+
+        #     # else:
+        #     #     flash('El archivo ingresado pertenece a otro candidato.', 'danger')
+        #     #     return redirect(url_for('candidate', candidate_id=candidate.id))
+
+        # candidate.file = form.file.data
 
             
         db.session.commit()
@@ -337,8 +485,8 @@ def delete_candidate(candidate_id):
     if current_user not in candidate.users:
         abort(403)
     db.session.delete(candidate)
-    db.session.delete(candidate.emails)
-    db.session.delete(candidate.phones)
+    #db.session.delete(candidate.emails)
+    #db.session.delete(candidate.phones)
     db.session.commit()
     flash('Usuario eliminado', 'success')
     return redirect(url_for('home'))
@@ -432,3 +580,54 @@ def offer(offer_id):
 
     return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates)
 
+@app.route("/offers/<int:offer_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_offer(offer_id):
+    offer = Offer.query.get_or_404(offer_id)
+    if current_user != offer.user:
+        abort(403)
+    form = OfferForm()        
+    form.category.query = Category.query.filter(Category.id >=0)
+    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_OFFER)
+    if form.validate_on_submit():
+        offer.name = form.name.data 
+        offer.description = form.description.data
+        offer.category_id = form.category.data.id
+        offer.status_id = form.status.data.id
+            
+        db.session.commit()
+        #print(candidate)
+        flash('Información de la oferta actualizada', 'success')
+        return redirect(url_for('offer', offer_id=offer.id))
+    #-------------------------------------------
+    # Cuando se carga la pagina, se carga con info ya cargada del sistema.
+    # Cuando el sistema quiere cargar la pagina, lo pide a traves del
+    # 'GET', por lo que cuando se quiera cargar la pagina debemos
+    # definir la info predeterminada a mostrar
+    #-------------------------------------------
+    elif request.method == 'GET': #cuando cargamos/redirreciona la pagina
+        form.name.data = offer.name
+        form.category.data = offer.category
+        form.status.data = offer.status
+        form.description.data = offer.description
+
+        # if candidate.emails.count()>0: #si tiene emails registrados
+        #     form.name          
+    
+    return render_template('new_offer.html', title='Actualizar oferta',
+                             form=form, legend='Actualizar oferta')
+
+@app.route("/offers/<int:offer_id>/delete", methods=['GET', 'POST'])
+@login_required
+def delete_offer(offer_id):
+    #dame el Candidate y si no existe, retorna 404 (no existe pagina)
+    offer = Offer.query.get_or_404(offer_id)
+    #si el registro no fue hecho por el usuario logueado
+    if current_user != offer.user:
+        abort(403)
+    db.session.delete(offer)
+    #db.session.delete(candidate.emails)
+    #db.session.delete(candidate.phones)
+    db.session.commit()
+    flash('Oferta eliminada', 'success')
+    return redirect(url_for('home'))

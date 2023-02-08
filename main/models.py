@@ -23,6 +23,10 @@ def inicialize():
         obs8 = Category(name='Educación')
         obs9 = Category(name='Psicología')
 
+        #ob5 = Status(name='Indefinido',classification='Candidato')
+        #ob2 = Status(name='Indefinido',classification='Trabajo')
+
+
         type_1 = Type(nametype='Candidato')
         type_2 = Type(nametype='Administrador')
         type_3 = Type(nametype='Usuario')
@@ -31,12 +35,17 @@ def inicialize():
         #-------------------------------------------
         # Ingreso un administrador a BD
         #-------------------------------------------
-        email = E_mail(name='administrador@gmail.com')
+
+        email = E_mail(name='administrador@gmail.com', extracted_y_n='N')
         admin = User(name='nombre-administrador', username='admin', password='admin', type=type_2.id)
         email.user = admin
         db.session.add(email)
         db.session.add(admin)
         db.session.commit()
+
+
+
+        
         #asd = E_mail.query.filter_by(name='administrador@gmail.com').first()
         #-------------------------------------------
         # Le asocio un email una vez ingresado el admin en el sistema vía commit
@@ -98,7 +107,7 @@ class Candidate(db.Model):
     #type = db.Column(db.String(50), nullable = False)
     type = db.Column(db.Integer, db.ForeignKey('type.id'))
     name = db.Column(db.String(50), nullable=False)
-    file = db.Column(db.String(20), unique=True)
+    file = db.Column(db.String(20))
     # file = db.Column(db.String(20), nullable=False, unique=True, default='default.jpg')
     description = db.Column(db.String(50), nullable=False)
     #email = db.Column(db.String(50), nullable=True)
@@ -108,8 +117,10 @@ class Candidate(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
     #Foreign key (1, N) Candidato - Email
-    emails = db.relationship('E_mail', backref='candidate', lazy='dynamic', passive_deletes=True) #fk
-    phones = db.relationship('Phone', backref='candidate', lazy='dynamic', passive_deletes=True) #fk
+    #emails = db.relationship('E_mail', backref='candidate', lazy='dynamic', passive_deletes=True) #fk
+    #phones = db.relationship('Phone', backref='candidate', lazy='dynamic', passive_deletes=True) #fk
+    emails = db.relationship('E_mail', backref='candidate', lazy='dynamic', cascade='save-update, merge, delete') #fk
+    phones = db.relationship('Phone', backref='candidate', lazy='dynamic', cascade='save-update, merge, delete') #fk
 
 
 
@@ -141,11 +152,15 @@ class User(db.Model, UserMixin):
 
     candidates = db.relationship('Candidate', secondary=candidate_user, backref='users')
     categories = db.relationship('Category', secondary=category_user, backref='users')
+    #candidates_cat = db.relationship('Candidate', backref='category', lazy='dynamic')
+
+    offers = db.relationship('Offer', backref='user', lazy='dynamic') #fk
+
 
     type = db.Column(db.Integer, db.ForeignKey('type.id'))
 
 
-    email = db.relationship('E_mail', uselist=False, backref='user')
+    email = db.relationship('E_mail', uselist=False, cascade='all,delete', backref='user')
     #email = db.relationship('E_mail', back_populates='email', uselist=False)
 
 
@@ -176,9 +191,13 @@ class Offer(db.Model):
 class E_mail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'), nullable=True) #fk
+    #candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE'), nullable=True) #fk
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE'), nullable=True) #fk
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    extracted_y_n = db.Column(db.String(5), nullable=False)
+    #file_id = db.Column(db.Integer, db.ForeignKey('status.id'), nullable=True) #si está asociado con un archivo el correo
     #user_id = db.relationship('User', back_populates='user')
 ##############################################################
 
@@ -200,7 +219,9 @@ class Type(db.Model):
 class Phone(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Integer, nullable=False, unique=True)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id')) #
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE')) #
+
+    extracted_y_n = db.Column(db.String(5), nullable=False)
 
     def __repr__(self):
         return f"Phone('{self.id}', '{self.name}', '{self.candidate_id}')"
