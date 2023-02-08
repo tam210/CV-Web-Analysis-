@@ -37,7 +37,7 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Recuérdame')
 
 class UploadFileForm(FlaskForm):
-    file = FileField("Archivo")
+    file = FileField("Archivo PDF/JPG")
     submit=SubmitField("Subir archivo")
 
 def category_query():
@@ -56,7 +56,7 @@ class CandidateForm(FlaskForm):
     phone = StringField('Teléfono')
     description = TextAreaField('Descripción', validators=[DataRequired()])
     description = TextAreaField('Descripción', validators=[DataRequired()])
-    file = FileField("Archivo")
+    #file = FileField("Archivo")
     submit = SubmitField('Enviar')
     
     def validate_phone(self, phone):
