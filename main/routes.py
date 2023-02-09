@@ -1,5 +1,5 @@
 from flask import render_template, url_for, flash, redirect, request, abort
-from main.forms import RegistrationForm, LoginForm, UploadFileForm, CandidateForm, CategoryForm, StateForm, OfferForm
+from main.forms import RegistrationForm, LoginForm, UploadFileForm, CandidateForm, CategoryForm, StateForm, OfferForm, CategoriesStatusesForm
 from werkzeug.utils import secure_filename
 import os
 from main.analysis import obtenerDF_Email
@@ -18,12 +18,12 @@ CLASSIFICATION_STATUS_CANDIDATE = 'Candidato'
 
 
 
-
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
 @app.route("/candidates", methods=['GET', 'POST'])
 def home():
     inicialize()
+    
     """
     page: lo que se quiere obtener
     1: el valor por DEFAULT
@@ -566,9 +566,40 @@ def create_offer():
 #home 2
 @app.route("/offers", methods=['GET', 'POST'])
 def offers():
+    #cambio variable global
+    form = CategoriesStatusesForm()    
+    form.category.query = Category.query.filter(Category.id >=0)
+    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_OFFER)
     offers = Offer.query.all()
+    if form.validate_on_submit():
+        #Si ambos filtros fueron completados
+        if form.category.data and form.status.data:
+            cat = Category.query.get(form.category.data.id)
+            stat = Status.query.get(form.status.data.id)
+            offers = Offer.query.filter_by(category_id = cat.id, status_id=stat.id)
+        #Si uno o 0 filtros fueron completados
+        else:
+            # Si el filtro categoría fue completado, entonces el estado
+            # no fue completado, así que se obtiene la query de categorías
+            if(form.category.data):
+                print("---Categoria seleccionada---")
+                cat = Category.query.get(form.category.data.id)
+                offers = Offer.query.filter_by(category_id = cat.id)
+
+            else:
+                print("---Categoria NO seleccionada--- 2 2 2 2s")
+                # Si no  fue completada la categoría, entonces puede ser que
+                # el estado sí esté completo
+                if(form.status.data):
+                    print("---Estado seleccionada---")
+                    stat = Status.query.get(form.status.data.id)
+                    offers = Offer.query.filter_by(status_id=stat.id)
+                # Si llega hasta acá es porque ningún campo se completó,
+                # Por default se obtendrán todas las ofertas    
+                else:
+                    offers = Offer.query.all()
     return render_template('offers.html', title='Ofertas', 
-                            offers=offers, legend='Ofertas')
+                            offers=offers, legend='Ofertas', form=form)
 
 @app.route("/offers/<int:offer_id>", methods=['GET', 'POST'])
 def offer(offer_id):
