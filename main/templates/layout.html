@@ -26,6 +26,9 @@
     <header class="site-header">
       <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
         <div class="container">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" class="bi bi-file-earmark-person-fill" viewBox="0 0 16 16">
+            <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm2 5.755V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-.245S4 12 8 12s5 1.755 5 1.755z"/>
+          </svg>
           <a class="navbar-brand mr-3" href="/">Gestor CV</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -50,6 +53,10 @@
         </div>
       </nav>
     </header>
+
+
+
+
     <main role="main" class="container">
       <div class="row">
         <div class="col-md-8">
@@ -92,12 +99,36 @@
       </div>
     </main>
 
+
+
+
   
     
     
    
 
     <!-- Optional JavaScript -->
+    <script>
+      function myFunction() {
+          var input, filter, ul, li, a, i, txtValue;
+          input = document.getElementById("myInput");
+          filter = input.value.toUpperCase();
+
+          ul = document.getElementById("search_items");
+          li = ul.getElementsByTagName("article");
+          for (i = 0; i < li.length; i++) {
+              c = li[i].getElementsByTagName("div")[0];
+              b = c.getElementsByTagName("h2")[0];
+              a = b.getElementsByTagName("a")[0];
+              txtValue = a.textContent || a.innerText;
+              if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                  li[i].style.display = "";
+              } else {
+                  li[i].style.display = "none";
+              }
+          }
+      }
+    </script>
     <!-- Prueba dropdown -->
     <!-- <script src="dist/virtual-select.min.js"></script> -->
      <!-- <script src="/main/script.js"></script> -->
