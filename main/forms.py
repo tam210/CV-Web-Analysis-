@@ -41,11 +41,17 @@ class UploadFileForm(FlaskForm):
     submit=SubmitField("Subir archivo")
 
 def category_query():
+    
     return Category.query
 
 def status_query():
     return Status.query
 
+
+class CategoriesStatusesForm(FlaskForm):
+    category = QuerySelectField('Filtrar por categoría', query_factory=category_query, allow_blank=True, get_label='name')
+    status = QuerySelectField('Filtrar por estado', query_factory=status_query, allow_blank=True, get_label='name')
+    submit = SubmitField('Enviar')
 
 class CandidateForm(FlaskForm):
     name = StringField('Nombre del candidato', validators=[DataRequired()])
