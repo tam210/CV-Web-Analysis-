@@ -14,7 +14,6 @@
 </div>
 
   <div class="float-container">
-
     <form method="POST" action="">
         {{ form.hidden_tag()}}
             <div class="float-child">
@@ -44,7 +43,6 @@
                       {{ form.status(class="form-control form-control-lg") }}
               {% endif %}               
             </div>  
-
             <div class="text-right font-weight-light">
                 {{ form.submit(class="btn btn-outline-info")}}
             </div>
@@ -66,14 +64,10 @@
         <div class="article-metadata">
           <a class="mr-2" href="#">{{ offer.category.name }}</a>
           <small class="text-muted">{{ offer.status.name }}</small>
-          <small class="text-muted ml-2"
-            >Registrado el {{ offer.creation_date.strftime('%Y-%m-%d') }}</small
-          >
+          <small class="text-muted ml-2">Registrado el {{ offer.creation_date.strftime('%Y-%m-%d') }}</small>
         </div>
         <h2 id="name_offer">
-          <a class="article-title" href="{{ url_for('offer', offer_id=offer.id) }}"
-            >{{ offer.name }}</a
-          >
+          <a class="article-title" href="{{ url_for('offer', offer_id=offer.id) }}">{{ offer.name }}</a>
         </h2>
         <p class="article-content">{{ offer.description }}</p>
       </div>

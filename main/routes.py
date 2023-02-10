@@ -23,16 +23,52 @@ CLASSIFICATION_STATUS_CANDIDATE = 'Candidato'
 @app.route("/candidates", methods=['GET', 'POST'])
 def home():
     inicialize()
-    
+    page = request.args.get('page', 1, type=int) #default=1
+    candidates = Candidate.query.paginate(page=page, per_page=5)
+
+    form = CategoriesStatusesForm()    
+    form.category.query = Category.query.filter(Category.id >=0)
+    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
+
+    if form.validate_on_submit():
+        print("ENTRO AL FORMULARIO")
+        #Si ambos filtros fueron completados
+        if form.category.data and form.status.data:
+            cat = Category.query.get(form.category.data.id)
+            stat = Status.query.get(form.status.data.id)
+            candidates = Candidate.query.filter_by(category_id = cat.id, status_id=stat.id)
+        #Si uno o 0 filtros fueron completados
+        else:
+            # Si el filtro categoría fue completado, entonces el estado
+            # no fue completado, así que se obtiene la query de categorías
+            if(form.category.data):
+                print("---Categoria seleccionada---")
+                cat = Category.query.get(form.category.data.id)
+                candidates = Candidate.query.filter_by(category_id = cat.id)
+                print(candidates)
+
+            else:
+                print("---Categoria NO seleccionada--- 2 2 2 2s")
+                # Si no  fue completada la categoría, entonces puede ser que
+                # el estado sí esté completo
+                if(form.status.data):
+                    print("---Estado seleccionada---")
+                    stat = Status.query.get(form.status.data.id)
+                    candidates = Candidate.query.filter_by(status_id=stat.id)
+                # Si llega hasta acá es porque ningún campo se completó,
+                # Por default se obtendrán todas las ofertas    
+                else:
+                    candidates =  Candidate.query.all()
+    # return render_template('offers.html', title='Ofertas', 
+    #                         offers=offers, legend='Ofertas', form=form)
+
     """
     page: lo que se quiere obtener
     1: el valor por DEFAULT
     type: el tipo que debe tener la página, así se evitan strings u otro
     """
-    page = request.args.get('page', 1, type=int) #default=1
     #Candidates = Candidate.query.all()
-    candidates = Candidate.query.paginate(page=page, per_page=5)
-    return render_template('home.html',candidates=candidates)
+    return render_template('home.html', title='Candidatos', legend='Candidatos', candidates=candidates, form=form)
 
 
 @app.route("/candidates/category/<int:category_id>", methods=['GET', 'POST'])
@@ -231,6 +267,7 @@ def create_candidate():
             #Si ingresó un email en el formulario crea un email nuevo
             db.session.commit()
             flash('Candidato registrado', 'success')
+            print(Candidate.query.all())
             return redirect(url_for('home'))
 
         except SQLAlchemyError as e:
@@ -558,6 +595,7 @@ def create_offer():
         db.session.add(oferta)
         db.session.commit()
         flash('Oferta registrada', 'success')
+        print(Offer.query.all())
         return redirect(url_for('offers'))
 
     # image_file=url_for('static', filename='files/'+current_user.image_file)

@@ -125,7 +125,7 @@ class Candidate(db.Model):
 
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}')"
+        return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}','{self.category_id}','{self.status_id}')"
 
 category_user = db.Table('category_user',
                             db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
@@ -186,7 +186,7 @@ class Offer(db.Model):
     candidates = db.relationship('Candidate', secondary=offer_candidate, backref='offers')
 
     def __repr__(self):
-        return f"Offer('{self.id}', '{self.name}', '{self.category_id}', '{self.user_id}', '{self.status_id}', '{self.description}', '{self.creation_date}')"
+        return f"Offer('{self.id}', '{self.name}', '{self.category_id}', '{self.user_id}', '{self.status_id}', '{self.description}', '{self.creation_date}','{self.category_id}','{self.status_id}')"
 
 class E_mail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
