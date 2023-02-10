@@ -74,10 +74,14 @@
 
             <p class="font-weight-bold article-content">Ofertas postuladas:
                 <ul>
-                    {% if candidate.offers %}
-                        {% for offer in candidate.offers %}
+                    {% if candidate_postulations %}
+                        {% for offer in candidate_postulations %}
                         <li>
-                            <a href="{{ url_for('offer', offer_id=offer.id) }}">{{offer.name}}</a>
+                            
+                            <p>
+                                <a href="{{ url_for('offer', offer_id=offer.id) }}">{{offer.offer.name}}</a>
+                                 | Estado: {{ offer.status_id }}
+                            </p>
                         </li>                    
                         {% endfor %}
 
