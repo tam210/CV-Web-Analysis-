@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 from main.analysis import obtenerDF_Email
 from main import app, db, bcrypt
-from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize, offer_candidate
+from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize, Postulation
 from sqlalchemy.exc import SQLAlchemyError
 
 from flask_login import login_user, current_user, logout_user, login_required
@@ -145,17 +145,6 @@ def register():
             print("\n\n\n")
         except:
             print("\n\nError haciendo el commit\n\n")
-        #print("Tipo:\n",user,"\n")
-        #Si lo imprimo falla pq trata de accesar al type q no tiene id
-        #print("Tipo:\n",user,"\n")
-        
-        #db.session.commit()
-
-        #asd = User.query.all().first()
-        #print("\n\n\n\n\n")
-        #print(asd)
-
-        #print("--------------------------",user)
         flash(f'Tu cuenta ha sido creada, {form.username.data}!', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
@@ -170,8 +159,6 @@ def login():
         email = E_mail.query.filter_by(name=form.email.data).first()
         if email:
             user = User.query.get(email.user_id)
-            #password_checked = bcrypt.check_password_hash(user.password, form.password.data)
-            #print("\n\n----------------xX ", password_checked)
             if user and bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
                 next_page = request.args.get('next') #args: diccionario
@@ -395,18 +382,28 @@ def candidate(candidate_id):
         image_file=url_for('static', filename='files/'+candidate.file)
     else:
         image_file=url_for('static', filename='files/default.jpg')
+    
     select = request.form.getlist('skills')
+    print("\n\n\n\n\n\n\n")
 
     for i in select:
         oferta = Offer.query.get(i)
-        if oferta not in candidate.offers:
-            oferta.candidates.append(candidate)
+        # Veo si existe una postulacion del candidato en la oferta
+        verify_postulation = Postulation.query.filter_by(candidate_id=candidate.id, offer_id=oferta.id).first()
+        print(verify_postulation)
+        if not verify_postulation:
+            initial_status_postulation = Status.query.filter_by(name='En evaluación').first()
+            postulation = Postulation(offer_id=oferta.id, candidate_id=candidate.id, status_id=initial_status_postulation)
+            db.session.add(postulation)
+            #oferta.candidates.append(candidate)
             flash('Oferta postulada', 'success')
         else:
             flash('La oferta ya se encuentra postulada', 'danger')
     db.session.commit()
+    candidate_postulations = Postulation.query.filter_by(candidate_id=candidate.id)
+    
     #print(oferta.candidates)    
-    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers, form=form)
+    return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers, form=form, candidate_postulations=candidate_postulations)
 
 
 @app.route("/candidates/<int:candidate_id>/update", methods=['GET', 'POST'])
@@ -644,17 +641,30 @@ def offer(offer_id):
     candidates = Candidate.query.all()
     offer = Offer.query.get_or_404(offer_id)
     select = request.form.getlist('skills')
-
+    #Itero en los candidatos seleccionados
     for i in select:
-        candidate = Candidate.query.get(i)
-        if candidate not in offer.candidates:
-            candidate.offers.append(offer)
+        print(i)
+        candidate = Candidate.query.get(i) #Candidato seleccionado
+
+        verify_postulation = Postulation.query.filter_by(candidate_id=candidate.id, offer_id=offer.id).first()
+
+        if not verify_postulation: #Si el candidato no está postulado
+            print("No hay postulacion del candidato en esa oferta")
+            initial_status_postulation = Status.query.filter_by(name='En evaluación').first()
+            print(initial_status_postulation)
+             #candidate.offers.append(offer) #Agrego la oferta al candidato
+            postulation = Postulation(offer_id=offer.id, candidate_id=candidate.id, status_id=initial_status_postulation.id)
+            #print(postulation)
+            db.session.add(postulation)
+            print(postulation)
+            db.session.commit()
             flash('Candidato postulado', 'success')
         else:
             flash('El candidato ya se encuentra postulado', 'danger')
-    db.session.commit()
-
-    return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates)
+    candidate_postulations = Postulation.query.filter_by(offer_id=offer.id)
+    print(candidate_postulations)
+    #candidate_postulations = offer.candidates
+    return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates,candidate_postulations=candidate_postulations)
 
 @app.route("/offers/<int:offer_id>/update", methods=['GET', 'POST'])
 @login_required
@@ -702,8 +712,6 @@ def delete_offer(offer_id):
     if current_user != offer.user:
         abort(403)
     db.session.delete(offer)
-    #db.session.delete(candidate.emails)
-    #db.session.delete(candidate.phones)
     db.session.commit()
     flash('Oferta eliminada', 'success')
     return redirect(url_for('home'))

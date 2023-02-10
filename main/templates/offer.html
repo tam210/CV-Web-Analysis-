@@ -38,10 +38,10 @@
         
             <p class="font-weight-bold  article-content">Candidatos postulados
                 <ul>
-                    {% if offer.candidates %}
-                        {% for candidate in offer.candidates %}
+                    {% if candidate_postulations %}
+                        {% for candidate in candidate_postulations%}
                         <li>
-                            <a href="{{ url_for('candidate', candidate_id=candidate.id) }}">{{candidate.name}}</a>
+                            <a href="{{ url_for('candidate', candidate_id=candidate.id) }}">{{candidate.candidate.name}}</a>
                         </li>                    
                         {% endfor %}
                     {% else %}

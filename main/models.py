@@ -1,6 +1,8 @@
 from main import db, login_manager
 from flask_login import UserMixin
 from datetime import datetime
+from sqlalchemy.ext.associationproxy import association_proxy
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -76,18 +78,6 @@ def inicialize():
         #db.drop_all()
         #db.create_all()
 
-class Status(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True)
-    classification = db.Column(db.String(50), nullable=False)
-    #Foreign key (1,N) Estado - Oferta
-    offers = db.relationship('Offer', backref='status') #fk
-    #Foreign key (1, N) Estado - Candidato
-    candidates_status = db.relationship('Candidate', backref='status', lazy='dynamic')
-    #Similar al to_string()
-    def __repr__(self): 
-        return f"Status ('{self.name}', '{self.classification}' )"
-
 #(1,1) Usuario - Email
 
 class Category(db.Model):
@@ -100,6 +90,24 @@ class Category(db.Model):
 
     def __repr__(self): ##como nuestro objeto es impreso
         return f"Category ('{self.name}', '{self.id}')"
+
+
+
+class Status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    classification = db.Column(db.String(50), nullable=False)
+    #Foreign key (1,N) Estado - Oferta
+    offers = db.relationship('Offer', backref='status') #fk
+    #Foreign key (1, N) Estado - Candidato
+    candidates_status = db.relationship('Candidate', backref='status', lazy='dynamic')
+
+    #offers_candidates = db.relationship("OfferCandidateStatus", back_populates="status")
+    #FK offer_candidate (1, N) Status - offer_candidate
+    #offers_candidates = db.relationship('offer_candidate', backref='status_offer_candidate', lazy='dynamic')
+    #Similar al to_string()
+    def __repr__(self): 
+        return f"Status ('{self.name}', '{self.classification}' )"
 
 
 class Candidate(db.Model):
@@ -137,10 +145,26 @@ candidate_user = db.Table('candidate_user',
                             db.Column('candidate_id', db.Integer, db.ForeignKey('candidate.id'))
                             )
                             
-offer_candidate = db.Table('offer_candidate',
-                            db.Column('offer_id', db.Integer, db.ForeignKey('offer.id')),
-                            db.Column('candidate_id', db.Integer, db.ForeignKey('candidate.id'))
-                            )
+# offer_candidate = db.Table('offer_candidate',
+#                             db.Column('offer_id', db.Integer, db.ForeignKey('offer.id')),
+#                             db.Column('candidate_id', db.Integer, db.ForeignKey('candidate.id'))
+#                                                         )
+
+
+class Offer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id')) #
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creador del empleo
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    description = db.Column(db.String(50), nullable=False)
+    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    #candidates = db.relationship('Candidate', secondary=offer_candidate, backref='offers')
+
+    def __repr__(self):
+        return f"Offer('{self.id}', '{self.name}', '{self.category_id}', '{self.user_id}', '{self.status_id}', '{self.description}', '{self.creation_date}','{self.category_id}','{self.status_id}')"
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -174,19 +198,6 @@ class User(db.Model, UserMixin):
         return f"User('Id: {self.id}', Name: '{self.name}', Password: '{self.password}', Email: '{self.email}', Username: '{self.username}', Date: '{self.creation_date}', Type'{self.type}')"
 
 
-class Offer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id')) #
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creador del empleo
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
-    description = db.Column(db.String(50), nullable=False)
-    creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-    candidates = db.relationship('Candidate', secondary=offer_candidate, backref='offers')
-
-    def __repr__(self):
-        return f"Offer('{self.id}', '{self.name}', '{self.category_id}', '{self.user_id}', '{self.status_id}', '{self.description}', '{self.creation_date}','{self.category_id}','{self.status_id}')"
 
 class E_mail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -226,3 +237,21 @@ class Phone(db.Model):
     def __repr__(self):
         return f"Phone('{self.id}', '{self.name}', '{self.candidate_id}')"
 
+
+class Postulation(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    offer_id = db.Column(db.Integer, db.ForeignKey('offer.id'))
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'))
+    status_id = db.Column(db.Integer)
+
+    offer = db.relationship('Offer', backref='postulations')
+    candidate = db.relationship('Candidate', backref='postulations')
+
+
+    def __repr__(self): ##como nuestro objeto es impreso
+        return f"Postulation('ID: '{self.id}', Offer_id: {self.offer_id}', Candidate_id: '{self.candidate_id}', Status_id: '{self.status_id}')"
+
+
+Offer.candidates = association_proxy("Postulation", "candidate")
+Candidate.offers = association_proxy("Postulation", "offer")
