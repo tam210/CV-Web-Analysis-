@@ -39,9 +39,12 @@
             <p class="font-weight-bold  article-content">Candidatos postulados
                 <ul>
                     {% if candidate_postulations %}
-                        {% for candidate in candidate_postulations%}
+                        {% for postulation in candidate_postulations%}
                         <li>
-                            <a href="{{ url_for('candidate', candidate_id=candidate.id) }}">{{candidate.candidate.name}}</a>
+                            <p>
+                                <a href="{{ url_for('candidate', candidate_id=postulation.candidate_id) }}">{{postulation.candidate.name}}</a>
+                                - Estado: {{ postulation.status.name }}
+                            </p>
                         </li>                    
                         {% endfor %}
                     {% else %}

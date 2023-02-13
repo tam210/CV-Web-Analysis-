@@ -7,6 +7,9 @@ from main import app, db, bcrypt
 from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize, Postulation
 from sqlalchemy.exc import SQLAlchemyError
 
+from sqlalchemy.ext.associationproxy import association_proxy
+
+
 from flask_login import login_user, current_user, logout_user, login_required
 
 NAMETYPE_USER_USER = 'Usuario'
@@ -28,39 +31,62 @@ def home():
 
     form = CategoriesStatusesForm()    
     form.category.query = Category.query.filter(Category.id >=0)
-    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
+    #form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
+
+
 
     if form.validate_on_submit():
         print("ENTRO AL FORMULARIO")
-        #Si ambos filtros fueron completados
-        if form.category.data and form.status.data:
+        if form.category.data:
             cat = Category.query.get(form.category.data.id)
-            stat = Status.query.get(form.status.data.id)
-            candidates = Candidate.query.filter_by(category_id = cat.id, status_id=stat.id)
-        #Si uno o 0 filtros fueron completados
+            candidates = Candidate.query.filter_by(category_id = cat.id)
         else:
-            # Si el filtro categoría fue completado, entonces el estado
-            # no fue completado, así que se obtiene la query de categorías
-            if(form.category.data):
-                print("---Categoria seleccionada---")
-                cat = Category.query.get(form.category.data.id)
-                candidates = Candidate.query.filter_by(category_id = cat.id)
-                print(candidates)
+            candidates =  Candidate.query.all()
 
-            else:
-                print("---Categoria NO seleccionada--- 2 2 2 2s")
-                # Si no  fue completada la categoría, entonces puede ser que
-                # el estado sí esté completo
-                if(form.status.data):
-                    print("---Estado seleccionada---")
-                    stat = Status.query.get(form.status.data.id)
-                    candidates = Candidate.query.filter_by(status_id=stat.id)
-                # Si llega hasta acá es porque ningún campo se completó,
-                # Por default se obtendrán todas las ofertas    
-                else:
-                    candidates =  Candidate.query.all()
-    # return render_template('offers.html', title='Ofertas', 
-    #                         offers=offers, legend='Ofertas', form=form)
+
+
+
+
+    # if form.validate_on_submit():
+    #     print("ENTRO AL FORMULARIO")
+    #     #Si ambos filtros fueron completados
+    #     if form.category.data and form.status.data:
+    #         cat = Category.query.get(form.category.data.id)
+    #         stat = Status.query.get(form.status.data.id)
+    #         candidates = Candidate.query.filter_by(category_id = cat.id, status_id=stat.id)
+    #     #Si uno o 0 filtros fueron completados
+    #     else:
+    #         # Si el filtro categoría fue completado, entonces el estado
+    #         # no fue completado, así que se obtiene la query de categorías
+    #         if(form.category.data):
+    #             print("---Categoria seleccionada---")
+    #             cat = Category.query.get(form.category.data.id)
+    #             candidates = Candidate.query.filter_by(category_id = cat.id)
+    #             print(candidates)
+
+    #         else:
+    #             print("---Categoria NO seleccionada--- 2 2 2 2s")
+    #             # Si no  fue completada la categoría, entonces puede ser que
+    #             # el estado sí esté completo
+    #             if(form.status.data):
+    #                 print("---Estado seleccionada---")
+    #                 stat = Status.query.get(form.status.data.id)
+    #                 candidates = Candidate.query.filter_by(status_id=stat.id)
+    #             # Si llega hasta acá es porque ningún campo se completó,
+    #             # Por default se obtendrán todas las ofertas    
+    #             else:
+    #                 candidates =  Candidate.query.all()
+
+
+
+
+
+
+
+
+
+
+
 
     """
     page: lo que se quiere obtener
@@ -187,13 +213,13 @@ def account():
 def create_candidate():
     form = CandidateForm()
     form.category.query = Category.query.filter(Category.id >=0)
-    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
+    #form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
     if form.validate_on_submit():
         try:
             #ff = form.file.data
             cand = Candidate(name=form.name.data,
                                 category_id=form.category.data.id, 
-                                status_id=form.status.data.id, 
+                                #status_id=form.status.data.id, 
                                 #file=form.file.data, 
                                 description=form.description.data)
             type_id = Type.query.filter_by(nametype=NAMETYPE_USER_CANDIDATE).first().id
@@ -393,15 +419,16 @@ def candidate(candidate_id):
         print(verify_postulation)
         if not verify_postulation:
             initial_status_postulation = Status.query.filter_by(name='En evaluación').first()
-            postulation = Postulation(offer_id=oferta.id, candidate_id=candidate.id, status_id=initial_status_postulation)
+            postulation = Postulation(offer_id=oferta.id, candidate_id=candidate.id, status_id=initial_status_postulation.id)
             db.session.add(postulation)
+            db.session.commit()
             #oferta.candidates.append(candidate)
             flash('Oferta postulada', 'success')
         else:
             flash('La oferta ya se encuentra postulada', 'danger')
-    db.session.commit()
     candidate_postulations = Postulation.query.filter_by(candidate_id=candidate.id)
-    
+    #candidate_postulations = candidate.postulations
+    #print(candidate_postulations)
     #print(oferta.candidates)    
     return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers, form=form, candidate_postulations=candidate_postulations)
 
@@ -522,11 +549,13 @@ def update_candidate(candidate_id):
 def delete_candidate(candidate_id):
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
     candidate = Candidate.query.get_or_404(candidate_id)
+    postulations = Postulation.query.filter_by(candidate_id=candidate.id)
     #si el registro no fue hecho por el usuario logueado
     if current_user not in candidate.users:
         abort(403)
     db.session.delete(candidate)
-    #db.session.delete(candidate.emails)
+ #   db.session.delete(postulations)
+
     #db.session.delete(candidate.phones)
     db.session.commit()
     flash('Usuario eliminado', 'success')
@@ -645,7 +674,7 @@ def offer(offer_id):
     for i in select:
         print(i)
         candidate = Candidate.query.get(i) #Candidato seleccionado
-
+        print("----------nombre:-",candidate.name)
         verify_postulation = Postulation.query.filter_by(candidate_id=candidate.id, offer_id=offer.id).first()
 
         if not verify_postulation: #Si el candidato no está postulado
@@ -662,8 +691,6 @@ def offer(offer_id):
         else:
             flash('El candidato ya se encuentra postulado', 'danger')
     candidate_postulations = Postulation.query.filter_by(offer_id=offer.id)
-    print(candidate_postulations)
-    #candidate_postulations = offer.candidates
     return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates,candidate_postulations=candidate_postulations)
 
 @app.route("/offers/<int:offer_id>/update", methods=['GET', 'POST'])

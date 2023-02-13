@@ -56,7 +56,6 @@ class CategoriesStatusesForm(FlaskForm):
 class CandidateForm(FlaskForm):
     name = StringField('Nombre del candidato', validators=[DataRequired()])
     category = QuerySelectField('Categoría', query_factory=category_query, allow_blank=False, get_label='name')
-    status = QuerySelectField('Estado', query_factory=status_query, allow_blank=False, get_label='name')
     # state = StringField('Estado', validators=[DataRequired()])
     email = StringField('Email')
     phone = StringField('Teléfono')
