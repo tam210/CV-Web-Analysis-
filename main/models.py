@@ -113,7 +113,7 @@ class Candidate(db.Model):
 
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}','{self.category_id}','{self.status_id}')"
+        return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}','{self.category_id}')"
 
 category_user = db.Table('category_user',
                             db.Column('user_id', db.Integer, db.ForeignKey('user.id')),

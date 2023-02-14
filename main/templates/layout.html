@@ -129,6 +129,35 @@
           }
       }
     </script>
+
+
+    <script>
+      let element = document.getElementsByClassName("statuses1")[0];
+      element.addEventListener("change", () => {
+        console.log(element.value);
+      });
+    </script>
+
+    <script>
+        function getOption() {
+          var selectElement = document.getElementById('statuses2');
+          var valor = selectElement.options[selectElement.selectedIndex].value;
+          var txt = selectElement.options[selectElement.selectedIndex].text;
+          output = txt
+          document.querySelector('.output').textContent = output;
+
+
+        }
+    </script>
+
+    <script>
+      document.getElementById("statuses").addEventListener("change", myfunc);
+      function myfunc(){
+        var x = document.getElementById("statuses").value;
+        document.getElementById("funca").innerHTML = "Valor: "+x;
+      }
+    </script>
+
     <!-- Prueba dropdown -->
     <!-- <script src="dist/virtual-select.min.js"></script> -->
      <!-- <script src="/main/script.js"></script> -->

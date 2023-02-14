@@ -75,15 +75,11 @@
                 <ul>
                     {% if candidate_postulations %}
                         {% for postulation in candidate_postulations %}
-                        <li>
-                            
-                            <p>
-                                <a href="{{ url_for('offer', offer_id=postulation.offer_id) }}">{{postulation.offer.name}}</a>
-                                 - Estado: {{ postulation.status.name }}
-                            </p>
+                        <li class="more">
+                            <a href="{{ url_for('offer', offer_id=postulation.offer_id) }}">{{postulation.offer.name}}</a>
+                            - Estado: {{ postulation.status.name }}
                         </li>                    
                         {% endfor %}
-
                     {% else %}
                         No tiene ofertas asociadas 
                     {% endif %}

@@ -427,9 +427,8 @@ def candidate(candidate_id):
         else:
             flash('La oferta ya se encuentra postulada', 'danger')
     candidate_postulations = Postulation.query.filter_by(candidate_id=candidate.id)
-    #candidate_postulations = candidate.postulations
-    #print(candidate_postulations)
-    #print(oferta.candidates)    
+
+
     return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers, form=form, candidate_postulations=candidate_postulations)
 
 
@@ -444,13 +443,11 @@ def update_candidate(candidate_id):
     form = CandidateForm() #creo nuevo formulario
         
     form.category.query = Category.query.filter(Category.id >=0)
-    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
 
     if form.validate_on_submit():
         candidate.name = form.name.data 
         candidate.description = form.description.data
         candidate.category_id = form.category.data.id
-        candidate.status_id = form.status.data.id
         # Si introdujo un email manualmente
         if form.email.data:
             if not E_mail.query.filter_by(name=form.email.data).first():
@@ -534,7 +531,6 @@ def update_candidate(candidate_id):
     elif request.method == 'GET': #cuando cargamos/redirreciona la pagina
         form.name.data = candidate.name
         form.category.data = candidate.category
-        form.status.data = candidate.status
         form.description.data = candidate.description
         #form.file.data = candidate.file
 
@@ -690,8 +686,19 @@ def offer(offer_id):
             flash('Candidato postulado', 'success')
         else:
             flash('El candidato ya se encuentra postulado', 'danger')
+
+    select_status = request.form.get('statuses')
+
+    if select_status:
+        select_postulation = request.form.get('postulation')
+        postu = Postulation.query.get(select_postulation)
+        postu.status_id = select_status
+        #db.session.add(postulation)
+        db.session.commit()
+
     candidate_postulations = Postulation.query.filter_by(offer_id=offer.id)
-    return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates,candidate_postulations=candidate_postulations)
+    statuses = Status.query.filter_by(classification=CLASSIFICATION_STATUS_CANDIDATE)
+    return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates,candidate_postulations=candidate_postulations, statuses=statuses)
 
 @app.route("/offers/<int:offer_id>/update", methods=['GET', 'POST'])
 @login_required

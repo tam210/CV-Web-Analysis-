@@ -36,14 +36,33 @@
             <h2><a class="article-title" href="#">{{ offer.name }}</a></h2>
             <p class="article-content">{{ offer.description }}</p>
         
-            <p class="font-weight-bold  article-content">Candidatos postulados
+            <p class="font-weight-bold article-content">Candidatos postulados
                 <ul>
                     {% if candidate_postulations %}
                         {% for postulation in candidate_postulations%}
                         <li>
                             <p>
-                                <a href="{{ url_for('candidate', candidate_id=postulation.candidate_id) }}">{{postulation.candidate.name}}</a>
-                                - Estado: {{ postulation.status.name }}
+
+                                <div class="parent-align-hor">
+                                    <div class="child-align-hor">
+                                        <a href="{{ url_for('candidate', candidate_id=postulation.candidate_id) }}">{{postulation.candidate.name}}</a>
+                                    </div>
+                                    <div class="child-align-hor" >
+                                        <form method="post" id="simple_select_form" action="">
+                                            <select name="statuses" id="statuses" class="statuses">
+                                                {% for status in statuses %}
+                                                    {% if status.name == postulation.status.name%}
+                                                        <option selected value="{{status.id}}">{{status.name}}</option>
+                                                    {% else %}
+                                                        <option value="{{status.id}}">{{status.name}}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                            <input type="hidden" id="postulation" name="postulation" value="{{ postulation.id}}" />
+                                            <input type="submit" name="submit" class="btn btn-success" value="Enviar" />
+                                        </form>
+                                    </div>
+                                </div>
                             </p>
                         </li>                    
                         {% endfor %}
