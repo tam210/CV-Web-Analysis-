@@ -63,7 +63,6 @@
             <div class="media-body">
             <div class="article-metadata">
                 <a class="mr-2" href="{{ url_for('candidates', category_id=candidate.category.id) }}">{{ candidate.category.name }}</a>
-                <small class="text-muted">{{ candidate.status.name }}</small>
                 <small class="text-muted ml-2">Registrado el {{ candidate.creation_date.strftime('%Y-%m-%d') }}</small>
             </div>
             <h2>

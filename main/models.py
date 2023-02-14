@@ -38,41 +38,15 @@ def inicialize():
         # Ingreso un administrador a BD
         #-------------------------------------------
 
-        email = E_mail(name='administrador@gmail.com', extracted_y_n='N')
-        admin = User(name='nombre-administrador', username='admin', password='admin', type=type_2.id)
-        email.user = admin
-        db.session.add(email)
-        db.session.add(admin)
-        db.session.commit()
-
-
-
-        
-        #asd = E_mail.query.filter_by(name='administrador@gmail.com').first()
         #-------------------------------------------
         # Le asocio un email una vez ingresado el admin en el sistema vía commit
         # (ya que si no está en el sistema su id es None, por lo tanto
         # al hacer user_id=admin.id estaría en None)
         #-------------------------------------------
-        #email = E_mail(name='administrador@gmail.com', user_id=admin.id)
 
-       # db.session.commit()        
-        print('Inserción inicial realizada')
-        print('-------------------')
-        print(admin)
-        print(email)
 
-        #ass = E_mail.query.filter_by(user_id=1).first()
-        print('--------X---X--------')
-        print('---------YYYYY----------')
-        a=User.query.get(1)
-        print(a.email)
-        print(a.email.id)
-        # a=User.query.filter_by(email = )
-        print('---------YYYYY----------')
-        #db.drop_all()
-        #db.create_all()
-        print("a")
+        print('Inserción inicial')
+
     else:
         print("Ya existen elementos iniciales")
         #db.drop_all()
@@ -100,7 +74,11 @@ class Status(db.Model):
     #Foreign key (1,N) Estado - Oferta
     offers = db.relationship('Offer', backref='status') #fk
     #Foreign key (1, N) Estado - Candidato
-    candidates_status = db.relationship('Candidate', backref='status', lazy='dynamic')
+    #candidates_status = db.relationship('Candidate', backref='status', lazy='dynamic')
+
+
+    #postulations = db.relationship('Postulation', uselist=False,  backref='status', cascade='save-update, merge, delete')
+    candidates = db.relationship('Postulation', back_populates="status")
 
     #offers_candidates = db.relationship("OfferCandidateStatus", back_populates="status")
     #FK offer_candidate (1, N) Status - offer_candidate
@@ -123,17 +101,19 @@ class Candidate(db.Model):
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
     #Foreign key (1, N) Candidato - Email
     #emails = db.relationship('E_mail', backref='candidate', lazy='dynamic', passive_deletes=True) #fk
     #phones = db.relationship('Phone', backref='candidate', lazy='dynamic', passive_deletes=True) #fk
     emails = db.relationship('E_mail', backref='candidate', lazy='dynamic', cascade='save-update, merge, delete') #fk
     phones = db.relationship('Phone', backref='candidate', lazy='dynamic', cascade='save-update, merge, delete') #fk
+    
+    offers = db.relationship('Postulation', back_populates="candidate", lazy='dynamic', cascade='save-update, merge, delete')
+    #postulations = db.relationship('Postulation', lazy='dynamic', backref='candidates', cascade='save-update, merge, delete')
 
 
 
     def __repr__(self): ##como nuestro objeto es impreso
-        return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}','{self.category_id}','{self.status_id}')"
+        return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}','{self.category_id}')"
 
 category_user = db.Table('category_user',
                             db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
@@ -160,6 +140,9 @@ class Offer(db.Model):
     description = db.Column(db.String(50), nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+    #postulations = db.relationship('Postulation', uselist=False, backref='offers', cascade='save-update, merge, delete')
+    candidates = db.relationship('Postulation', back_populates="offer", lazy='dynamic', cascade='save-update, merge, delete')
+
     #candidates = db.relationship('Candidate', secondary=offer_candidate, backref='offers')
 
     def __repr__(self):
@@ -169,19 +152,14 @@ class Offer(db.Model):
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    # password = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(50), nullable=False)
     username = db.Column(db.Integer, unique=True, nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    type = db.Column(db.Integer, db.ForeignKey('type.id'))
 
     candidates = db.relationship('Candidate', secondary=candidate_user, backref='users')
     categories = db.relationship('Category', secondary=category_user, backref='users')
-    #candidates_cat = db.relationship('Candidate', backref='category', lazy='dynamic')
-
     offers = db.relationship('Offer', backref='user', lazy='dynamic') #fk
-
-
-    type = db.Column(db.Integer, db.ForeignKey('type.id'))
 
 
     email = db.relationship('E_mail', uselist=False, cascade='all,delete', backref='user')
@@ -241,17 +219,20 @@ class Phone(db.Model):
 class Postulation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    offer_id = db.Column(db.Integer, db.ForeignKey('offer.id'))
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'))
-    status_id = db.Column(db.Integer)
+    offer_id = db.Column(db.Integer, db.ForeignKey('offer.id', ondelete='CASCADE'))
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE'))
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'))
 
+    #offer = db.relationship('Offer', uselist=False,  backref='postulations', cascade='save-update, merge, delete')
+    #candidate = db.relationship('Candidate', uselist=False, backref='postulations', cascade='save-update, merge, delete')
     offer = db.relationship('Offer', backref='postulations')
     candidate = db.relationship('Candidate', backref='postulations')
-
-
+    status = db.relationship('Status', backref='postulations')
+    #,uselist=False, cascade='all,delete'
+    #, uselist=False, cascade='save-update, merge, delete'
     def __repr__(self): ##como nuestro objeto es impreso
         return f"Postulation('ID: '{self.id}', Offer_id: {self.offer_id}', Candidate_id: '{self.candidate_id}', Status_id: '{self.status_id}')"
 
 
-Offer.candidates = association_proxy("Postulation", "candidate")
-Candidate.offers = association_proxy("Postulation", "offer")
+# Offer.candidates = association_proxy("Postulation", "candidate")
+# Candidate.offers = association_proxy("Postulation", "offer")

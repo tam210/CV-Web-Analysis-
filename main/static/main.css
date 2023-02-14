@@ -43,7 +43,7 @@ body {
   }
 
   .content-section:hover{
-    background-color: rgba(189, 189, 189, 0.185);
+    background-color: rgba(189, 189, 189, 0.123);
     transition: background-color .1s;
   }
   
@@ -199,3 +199,45 @@ tr:hover{
   float: left;
   padding: 5px 20px 5px 20px;
 }  
+
+.parent-align-hor {
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  width: auto; 
+  align-items: center;
+}
+
+li span {
+  display:inline-block;
+  vertical-align:middle;
+}
+
+.more {
+  line-height:41px;
+}
+
+.moretwo {
+  vertical-align:sub;
+}
+
+
+.button-base{
+  background-color: #50b452; /* Green */
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  transition-duration: 0.1s;
+  cursor: pointer;
+}
+
+.button-enviar {
+   border: 1px solid #000000;
+   border-radius: 2px;
+}
+
+.button-enviar:hover {
+  background-color: #5ec74a;
+  color: white;
+}
