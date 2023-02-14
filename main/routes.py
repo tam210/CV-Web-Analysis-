@@ -15,11 +15,8 @@ from flask_login import login_user, current_user, logout_user, login_required
 NAMETYPE_USER_USER = 'Usuario'
 NAMETYPE_USER_CANDIDATE = 'Candidato'
 NAMETYPE_USER_ADMINISTRATOR = 'Administrador'
-
 CLASSIFICATION_STATUS_OFFER = 'Trabajo'
 CLASSIFICATION_STATUS_CANDIDATE = 'Candidato'
-
-
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/home", methods=['GET', 'POST'])
@@ -31,9 +28,6 @@ def home():
 
     form = CategoriesStatusesForm()    
     form.category.query = Category.query.filter(Category.id >=0)
-    #form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
-
-
 
     if form.validate_on_submit():
         print("ENTRO AL FORMULARIO")
@@ -42,11 +36,6 @@ def home():
             candidates = Candidate.query.filter_by(category_id = cat.id)
         else:
             candidates =  Candidate.query.all()
-
-
-
-
-
     # if form.validate_on_submit():
     #     print("ENTRO AL FORMULARIO")
     #     #Si ambos filtros fueron completados
@@ -76,18 +65,6 @@ def home():
     #             # Por default se obtendrán todas las ofertas    
     #             else:
     #                 candidates =  Candidate.query.all()
-
-
-
-
-
-
-
-
-
-
-
-
     """
     page: lo que se quiere obtener
     1: el valor por DEFAULT
@@ -118,11 +95,6 @@ def candidates(category_id):
     #candidates = Candidate.query.paginate(page=page, per_page=5)
     return render_template('candidates.html',candidates=candidates)
 
-
-
-
-
-
 @app.route("/get_analysis", methods=['GET', 'POST'])
 def get_analysis():
     form=UploadFileForm()
@@ -132,16 +104,12 @@ def get_analysis():
         return redirect(url_for('analysis', file=ff))
     return render_template('get_analysis.html',title='Obtener análisis',form=form)
 
-
-
 @app.route("/analysis/<string:file>", methods=['GET', 'POST'])
 def analysis(file):
     ressume, email, phone = obtenerDF_Email(file)
     plot_img = url_for('static', filename='files/'+'resume_results.png')
 
     return render_template('analysis.html', tables=[ressume.to_html(classes='data')], titles=ressume.columns.values, file=file, plot_img=plot_img, email=email, phone=phone)
-
-
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -206,7 +174,6 @@ def account():
     #image_file=url_for('static', filename='files/'+current_user.image_file)
     print(current_user.email)
     return render_template('account.html', title='Account')
-
 
 @app.route("/candidates/new", methods=['GET', 'POST'])
 @login_required
@@ -401,7 +368,6 @@ def candidate(candidate_id):
             flash('Archivo actualizado', 'success')
             return redirect(url_for('home'))
 
-    
     offers = Offer.query.all()
     candidate = Candidate.query.get_or_404(candidate_id)
     if candidate.file:
@@ -427,8 +393,6 @@ def candidate(candidate_id):
         else:
             flash('La oferta ya se encuentra postulada', 'danger')
     candidate_postulations = Postulation.query.filter_by(candidate_id=candidate.id)
-
-
     return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers, form=form, candidate_postulations=candidate_postulations)
 
 
@@ -462,9 +426,6 @@ def update_candidate(candidate_id):
                 db.session.add(ph)
             else:
                 print ("-------------------------")
-        
-
-
         # #Si se introdujo un archivo distinto al que tenía el candidato
         # if form.file.data != candidate.file:
         #     # Si no existe un candidato con ese archivo
