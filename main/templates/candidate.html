@@ -52,28 +52,38 @@
             
             <p class="font-weight-bold article-content text-justify">Contacto: 
                 <ul>
-                    {% for ph in candidate.phones %}
-                    <li>
-                        {{ph.name}}
-                    </li>                    
-                    {% endfor %}
+                    {% if candidate.phones[0] %}
+                        {% for ph in candidate.phones %}
+                        <li>
+                            {{ph.name}}
+                        </li>                    
+                        {% endfor %}
+                    {% else %}
+                        No tiene números de contacto registrados
+                    {% endif %}
+
                 </ul>
             </p>
         
             <p class="font-weight-bold article-content">Correo electrónico: 
                 <ul>
-                    {% for em in candidate.emails %}
-                    <li>
-                        {{em.name}}
-                    </li>                    
-                    {% endfor %}
+                    {% if candidate.phones[0] %}
+
+                        {% for em in candidate.emails %}
+                        <li>
+                            {{em.name}}
+                        </li>                    
+                        {% endfor %}
+                    {% else %}
+                        No tiene correos registrados
+                    {% endif %}
                 </ul>
             </p>
         
 
             <p class="font-weight-bold article-content">Ofertas postuladas:
                 <ul>
-                    {% if candidate_postulations %}
+                    {% if candidate_postulations[0] %}
                         {% for postulation in candidate_postulations %}
                         <li class="more">
                             <a href="{{ url_for('offer', offer_id=postulation.offer_id) }}">{{postulation.offer.name}}</a>
