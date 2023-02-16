@@ -3,7 +3,7 @@
 
     <h3 class="mb-3">Categorías registradas</h3>
     <h6 class="text-right font-weight-light">
-        <a href="{{ url_for('create_category') }}">Crear categoría</a>
+        <a href="{{ url_for('categories.create_category') }}">Crear categoría</a>
     </h6>
 
     {% for category in categories %}

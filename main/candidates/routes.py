@@ -1,29 +1,19 @@
-from flask import render_template, url_for, flash, redirect, request, abort
-from main.forms import RegistrationForm, LoginForm, UploadFileForm, CandidateForm, CategoryForm, StateForm, OfferForm, CategoriesStatusesForm
-from werkzeug.utils import secure_filename
-import os
-from main.analysis import obtenerDF_Email
-from main import app, db, bcrypt
-from main.models import Candidate, Category, User, Status, Offer, E_mail, Phone, Type, inicialize, Postulation
+from flask import (render_template, url_for, flash, redirect, request, abort, Blueprint)
+from main.candidates.forms import UploadFileForm, CandidateForm
+from main.filters.forms import CategoriesStatusesForm
+from main.analysis.analysis import obtenerDF_Email
+from main import db
+from main.models import Candidate, Category, Status, Offer, E_mail, Phone, Type, inicialize, Postulation
 from sqlalchemy.exc import SQLAlchemyError
-
-from sqlalchemy.ext.associationproxy import association_proxy
-
-
-from flask_login import login_user, current_user, logout_user, login_required
-
-NAMETYPE_USER_USER = 'Usuario'
-NAMETYPE_USER_CANDIDATE = 'Candidato'
-NAMETYPE_USER_ADMINISTRATOR = 'Administrador'
-
-CLASSIFICATION_STATUS_OFFER = 'Trabajo'
-CLASSIFICATION_STATUS_CANDIDATE = 'Candidato'
+from flask_login import current_user, login_required
+from main.main.utils import NAMETYPE_USER_CANDIDATE
 
 
+candidates_bp = Blueprint('candidates', __name__)
 
-@app.route("/", methods=['GET', 'POST'])
-@app.route("/home", methods=['GET', 'POST'])
-@app.route("/candidates", methods=['GET', 'POST'])
+@candidates_bp.route("/", methods=['GET', 'POST'])
+@candidates_bp.route("/home", methods=['GET', 'POST'])
+@candidates_bp.route("/candidates", methods=['GET', 'POST'])
 def home():
     inicialize()
     page = request.args.get('page', 1, type=int) #default=1
@@ -31,9 +21,6 @@ def home():
 
     form = CategoriesStatusesForm()    
     form.category.query = Category.query.filter(Category.id >=0)
-    #form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_CANDIDATE)
-
-
 
     if form.validate_on_submit():
         print("ENTRO AL FORMULARIO")
@@ -42,11 +29,6 @@ def home():
             candidates = Candidate.query.filter_by(category_id = cat.id)
         else:
             candidates =  Candidate.query.all()
-
-
-
-
-
     # if form.validate_on_submit():
     #     print("ENTRO AL FORMULARIO")
     #     #Si ambos filtros fueron completados
@@ -76,18 +58,6 @@ def home():
     #             # Por default se obtendrán todas las ofertas    
     #             else:
     #                 candidates =  Candidate.query.all()
-
-
-
-
-
-
-
-
-
-
-
-
     """
     page: lo que se quiere obtener
     1: el valor por DEFAULT
@@ -97,7 +67,7 @@ def home():
     return render_template('home.html', title='Candidatos', legend='Candidatos', candidates=candidates, form=form)
 
 
-@app.route("/candidates/category/<int:category_id>", methods=['GET', 'POST'])
+@candidates_bp.route("/candidates/category/<int:category_id>", methods=['GET', 'POST'])
 def candidates(category_id):
     #page = request.args.get('page', 1, type=int) #default=1
     if not category_id:
@@ -119,96 +89,7 @@ def candidates(category_id):
     return render_template('candidates.html',candidates=candidates)
 
 
-
-
-
-
-@app.route("/get_analysis", methods=['GET', 'POST'])
-def get_analysis():
-    form=UploadFileForm()
-    # user_form = UserAdd()
-    if form.validate_on_submit():
-        ff = form.file.data.filename
-        return redirect(url_for('analysis', file=ff))
-    return render_template('get_analysis.html',title='Obtener análisis',form=form)
-
-
-
-@app.route("/analysis/<string:file>", methods=['GET', 'POST'])
-def analysis(file):
-    ressume, email, phone = obtenerDF_Email(file)
-    plot_img = url_for('static', filename='files/'+'resume_results.png')
-
-    return render_template('analysis.html', tables=[ressume.to_html(classes='data')], titles=ressume.columns.values, file=file, plot_img=plot_img, email=email, phone=phone)
-
-
-
-@app.route("/register", methods=['GET', 'POST'])
-def register():
-
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        hashed_paswword = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(name=form.name.data, 
-                        password=hashed_paswword, 
-                        
-                        username=form.username.data)
-        type_id = Type.query.filter_by(nametype=NAMETYPE_USER_USER).first()
-        email = E_mail(name=form.email.data, extracted_y_n='N')
-        #user.email = email.id
-        email.user = user
-        user.type = type_id.id
-        db.session.add(email)
-        db.session.add(user)
-        try:        
-            db.session.commit()
-            a = User.query.all()
-            asss = E_mail.query.all()
-            print(a)
-            print(asss)
-            print("\n\n\n")
-        except:
-            print("\n\nError haciendo el commit\n\n")
-        flash(f'Tu cuenta ha sido creada, {form.username.data}!', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
-
-@app.route("/login", methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-
-    form = LoginForm()
-    if form.validate_on_submit():
-        email = E_mail.query.filter_by(name=form.email.data).first()
-        if email:
-            user = User.query.get(email.user_id)
-            if user and bcrypt.check_password_hash(user.password, form.password.data):
-                login_user(user, remember=form.remember.data)
-                next_page = request.args.get('next') #args: diccionario
-                return redirect(next_page) if next_page else redirect(url_for('home'))
-            else:
-                flash('Inicio de sesión fallido. Intente nuevamente')
-        else:
-            flash('El email ingresado no existe')
-    return render_template('login.html', title='Login', form=form)
-
-@app.route("/logout")
-def logout():
-    logout_user()
-    return redirect(url_for('home'))
-
-@app.route("/account")
-@login_required
-def account():
-    #image_file=url_for('static', filename='files/'+current_user.image_file)
-    print(current_user.email)
-    return render_template('account.html', title='Account')
-
-
-@app.route("/candidates/new", methods=['GET', 'POST'])
+@candidates_bp.route("/candidates/new", methods=['GET', 'POST'])
 @login_required
 def create_candidate():
     form = CandidateForm()
@@ -281,7 +162,7 @@ def create_candidate():
             db.session.commit()
             flash('Candidato registrado', 'success')
             print(Candidate.query.all())
-            return redirect(url_for('home'))
+            return redirect(url_for('candidates.home'))
 
         except SQLAlchemyError as e:
             print("ERROR! - Registro de candidato")
@@ -292,7 +173,7 @@ def create_candidate():
                             form=form, legend='Registrar Candidato')
 
 
-@app.route("/candidates/<int:candidate_id>", methods=['GET', 'POST'])
+@candidates_bp.route("/candidates/<int:candidate_id>", methods=['GET', 'POST'])
 def candidate(candidate_id):
     candidate = Candidate.query.get_or_404(candidate_id)
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
@@ -326,7 +207,7 @@ def candidate(candidate_id):
                             #db.session.add(em2)
                         else:
                             flash('El archivo ingresado pertenece a otro candidato.', 'danger')
-                            return redirect(url_for('candidate', candidate_id=candidate.id))
+                            return redirect(url_for('candidates.candidate', candidate_id=candidate.id))
                     if phone:
                         print("INGRESANDO TELÉFONO")
                         if not Phone.query.filter_by(name=phone).first():
@@ -334,7 +215,7 @@ def candidate(candidate_id):
                             #db.session.add(ph2)            
                         else:
                             flash('El archivo ingresado pertenece a otro candidato.', 'danger')
-                            return redirect(url_for('candidate', candidate_id=candidate.id))
+                            return redirect(url_for('candidates.candidate', candidate_id=candidate.id))
                     print(em2)
                     if em2: 
                         db.session.add(em2)  
@@ -358,13 +239,16 @@ def candidate(candidate_id):
             else:
                 print("\n\nVACIO A DOCUMENTO\n\n")
                 _, email, phone = obtenerDF_Email(ff)
+                em2 = None
+                ph2 = None
+
                 if email: 
                     print("INGRESANDO EMAIL")
                     if not E_mail.query.filter_by(name=email).first():
                         em2 = E_mail(name = email, candidate_id=candidate.id, extracted_y_n='Y')
                     else:
                         flash('El archivo ingresado pertenece a otro candidato.', 'danger')
-                        return redirect(url_for('candidate', candidate_id=candidate.id))
+                        return redirect(url_for('candidates.candidate', candidate_id=candidate.id))
                 if phone:
                     print("INGRESANDO TELÉFONO")
                     if not Phone.query.filter_by(name=phone).first():
@@ -372,7 +256,7 @@ def candidate(candidate_id):
                         #db.session.add(ph2)    lo añado a sesion despues, por si despues se redireciona y queda en sesion        
                     else:
                         flash('El archivo ingresado pertenece a otro candidato.', 'danger')
-                        return redirect(url_for('candidate', candidate_id=candidate.id))
+                        return redirect(url_for('candidates.candidate', candidate_id=candidate.id))
                 if em2: 
                     db.session.add(em2)  
                 #    db.session.commit()              
@@ -382,7 +266,7 @@ def candidate(candidate_id):
                 db.session.commit()              
                 #candidate.file = form.file.data
                 flash('Archivo actualizado', 'success')
-                return redirect(url_for('home'))
+                return redirect(url_for('candidates.home'))
             #Vacio a documento: se agregará información de una fuente
             #else:
 
@@ -399,9 +283,8 @@ def candidate(candidate_id):
                 #db.session.commit()
             candidate.file = form.file.data
             flash('Archivo actualizado', 'success')
-            return redirect(url_for('home'))
+            return redirect(url_for('candidates.home'))
 
-    
     offers = Offer.query.all()
     candidate = Candidate.query.get_or_404(candidate_id)
     if candidate.file:
@@ -427,12 +310,10 @@ def candidate(candidate_id):
         else:
             flash('La oferta ya se encuentra postulada', 'danger')
     candidate_postulations = Postulation.query.filter_by(candidate_id=candidate.id)
-
-
     return render_template('candidate.html', title=candidate_id, candidate=candidate, image_file=image_file, offers=offers, form=form, candidate_postulations=candidate_postulations)
 
 
-@app.route("/candidates/<int:candidate_id>/update", methods=['GET', 'POST'])
+@candidates_bp.route("/candidates/<int:candidate_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_candidate(candidate_id):
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
@@ -462,9 +343,6 @@ def update_candidate(candidate_id):
                 db.session.add(ph)
             else:
                 print ("-------------------------")
-        
-
-
         # #Si se introdujo un archivo distinto al que tenía el candidato
         # if form.file.data != candidate.file:
         #     # Si no existe un candidato con ese archivo
@@ -521,7 +399,7 @@ def update_candidate(candidate_id):
         db.session.commit()
         #print(candidate)
         flash('Información del candidato actualizada', 'success')
-        return redirect(url_for('candidate', candidate_id=candidate.id))
+        return redirect(url_for('candidates.candidate', candidate_id=candidate.id))
     #-------------------------------------------
     # Cuando se carga la pagina, se carga con info ya cargada del sistema.
     # Cuando el sistema quiere cargar la pagina, lo pide a traves del
@@ -540,7 +418,7 @@ def update_candidate(candidate_id):
     return render_template('new_candidate.html', title='Actualizar candidato',
                              form=form, legend='Actualizar candidato')
 
-@app.route("/candidates/<int:candidate_id>/delete", methods=['GET', 'POST'])
+@candidates_bp.route("/candidates/<int:candidate_id>/delete", methods=['GET', 'POST'])
 @login_required
 def delete_candidate(candidate_id):
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)
@@ -555,197 +433,4 @@ def delete_candidate(candidate_id):
     #db.session.delete(candidate.phones)
     db.session.commit()
     flash('Usuario eliminado', 'success')
-    return redirect(url_for('home'))
-
-@app.route("/category/new", methods=['GET', 'POST'])
-def create_category():
-    form = CategoryForm()
-    if form.validate_on_submit():
-        category = Category(name=form.name.data)
-        db.session.add(category)
-        db.session.commit()
-        flash('Categoría registrado', 'success')
-        return redirect(url_for('categories'))
-    return render_template('new_category.html', title='Nueva Categoría', 
-                            form=form, legend='Ingresar nueva categoría')
-
-@app.route("/categories", methods=['GET', 'POST'])
-def categories():
-    categories = Category.query.all()
-    return render_template('categories.html', title='Categorías', 
-                            categories=categories, legend='Categorías existentes')
-
-@app.route("/users", methods=['GET', 'POST'])
-def users():
-    users = User.query.all()
-    return render_template('users.html', title='Usuarios', 
-                            users=users, legend='Usuarios existentes')
-
-@app.route("/status", methods=['GET', 'POST'])
-def status():
-    statuses = Status.query.all()
-    return render_template('status.html', title='Estados', 
-                            statuses=statuses, legend='Estados')
-
-@app.route("/status/new", methods=['GET', 'POST'])
-def create_status():
-    form = StateForm()
-    if form.validate_on_submit():
-        state = Status(name=form.name.data, 
-                        classification=form.classification.data)
-        db.session.add(state)
-        db.session.commit()
-        flash('Estado registrado', 'success')
-        return redirect(url_for('status'))
-    return render_template('new_status.html', title='Nuevo estado', 
-                            form=form, legend='Ingresar nuevo estado')
-
-@app.route("/offers/new", methods=['GET', 'POST'])
-@login_required
-def create_offer():
-    form = OfferForm()
-    form.category.query = Category.query.filter(Category.id >=0)
-    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_OFFER)
-    #estado convocatoria: abierta o cerrada
-    if form.validate_on_submit():
-        oferta = Offer(name=form.name.data, 
-                        category_id=form.category.data.id, 
-                        status_id=form.status.data.id, 
-                        description=form.description.data,
-                        user_id = current_user.id)
-
-        db.session.add(oferta)
-        db.session.commit()
-        flash('Oferta registrada', 'success')
-        print(Offer.query.all())
-        return redirect(url_for('offers'))
-
-    # image_file=url_for('static', filename='files/'+current_user.image_file)
-    return render_template('new_offer.html', title='Nueva oferta', 
-                            form=form, legend='Registrar oferta')
-#home 2
-@app.route("/offers", methods=['GET', 'POST'])
-def offers():
-    #cambio variable global
-    form = CategoriesStatusesForm()    
-    form.category.query = Category.query.filter(Category.id >=0)
-    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_OFFER)
-    offers = Offer.query.all()
-    if form.validate_on_submit():
-        #Si ambos filtros fueron completados
-        if form.category.data and form.status.data:
-            cat = Category.query.get(form.category.data.id)
-            stat = Status.query.get(form.status.data.id)
-            offers = Offer.query.filter_by(category_id = cat.id, status_id=stat.id)
-        #Si uno o 0 filtros fueron completados
-        else:
-            # Si el filtro categoría fue completado, entonces el estado
-            # no fue completado, así que se obtiene la query de categorías
-            if(form.category.data):
-                print("---Categoria seleccionada---")
-                cat = Category.query.get(form.category.data.id)
-                offers = Offer.query.filter_by(category_id = cat.id)
-
-            else:
-                print("---Categoria NO seleccionada--- 2 2 2 2s")
-                # Si no  fue completada la categoría, entonces puede ser que
-                # el estado sí esté completo
-                if(form.status.data):
-                    print("---Estado seleccionada---")
-                    stat = Status.query.get(form.status.data.id)
-                    offers = Offer.query.filter_by(status_id=stat.id)
-                # Si llega hasta acá es porque ningún campo se completó,
-                # Por default se obtendrán todas las ofertas    
-                else:
-                    offers = Offer.query.all()
-    return render_template('offers.html', title='Ofertas', 
-                            offers=offers, legend='Ofertas', form=form)
-
-@app.route("/offers/<int:offer_id>", methods=['GET', 'POST'])
-def offer(offer_id):
-    candidates = Candidate.query.all()
-    offer = Offer.query.get_or_404(offer_id)
-    select = request.form.getlist('skills')
-    #Itero en los candidatos seleccionados
-    for i in select:
-        print(i)
-        candidate = Candidate.query.get(i) #Candidato seleccionado
-        print("----------nombre:-",candidate.name)
-        verify_postulation = Postulation.query.filter_by(candidate_id=candidate.id, offer_id=offer.id).first()
-
-        if not verify_postulation: #Si el candidato no está postulado
-            print("No hay postulacion del candidato en esa oferta")
-            initial_status_postulation = Status.query.filter_by(name='En evaluación').first()
-            print(initial_status_postulation)
-             #candidate.offers.append(offer) #Agrego la oferta al candidato
-            postulation = Postulation(offer_id=offer.id, candidate_id=candidate.id, status_id=initial_status_postulation.id)
-            #print(postulation)
-            db.session.add(postulation)
-            print(postulation)
-            db.session.commit()
-            flash('Candidato postulado', 'success')
-        else:
-            flash('El candidato ya se encuentra postulado', 'danger')
-
-    select_status = request.form.get('statuses')
-
-    if select_status:
-        select_postulation = request.form.get('postulation')
-        postu = Postulation.query.get(select_postulation)
-        postu.status_id = select_status
-        #db.session.add(postulation)
-        db.session.commit()
-
-    candidate_postulations = Postulation.query.filter_by(offer_id=offer.id)
-    statuses = Status.query.filter_by(classification=CLASSIFICATION_STATUS_CANDIDATE)
-    return render_template('offer.html', title=offer_id, offer=offer, candidates=candidates,candidate_postulations=candidate_postulations, statuses=statuses)
-
-@app.route("/offers/<int:offer_id>/update", methods=['GET', 'POST'])
-@login_required
-def update_offer(offer_id):
-    offer = Offer.query.get_or_404(offer_id)
-    if current_user != offer.user:
-        abort(403)
-    form = OfferForm()        
-    form.category.query = Category.query.filter(Category.id >=0)
-    form.status.query = Status.query.filter(Status.classification==CLASSIFICATION_STATUS_OFFER)
-    if form.validate_on_submit():
-        offer.name = form.name.data 
-        offer.description = form.description.data
-        offer.category_id = form.category.data.id
-        offer.status_id = form.status.data.id
-            
-        db.session.commit()
-        #print(candidate)
-        flash('Información de la oferta actualizada', 'success')
-        return redirect(url_for('offer', offer_id=offer.id))
-    #-------------------------------------------
-    # Cuando se carga la pagina, se carga con info ya cargada del sistema.
-    # Cuando el sistema quiere cargar la pagina, lo pide a traves del
-    # 'GET', por lo que cuando se quiera cargar la pagina debemos
-    # definir la info predeterminada a mostrar
-    #-------------------------------------------
-    elif request.method == 'GET': #cuando cargamos/redirreciona la pagina
-        form.name.data = offer.name
-        form.category.data = offer.category
-        form.status.data = offer.status
-        form.description.data = offer.description
-
-        # if candidate.emails.count()>0: #si tiene emails registrados
-        #     form.name          
-    
-    return render_template('new_offer.html', title='Actualizar oferta',
-                             form=form, legend='Actualizar oferta')
-
-@app.route("/offers/<int:offer_id>/delete", methods=['GET', 'POST'])
-@login_required
-def delete_offer(offer_id):
-    #dame el Candidate y si no existe, retorna 404 (no existe pagina)
-    offer = Offer.query.get_or_404(offer_id)
-    #si el registro no fue hecho por el usuario logueado
-    if current_user != offer.user:
-        abort(403)
-    db.session.delete(offer)
-    db.session.commit()
-    flash('Oferta eliminada', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('candidates.home'))

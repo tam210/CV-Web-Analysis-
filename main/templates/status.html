@@ -3,7 +3,7 @@
 
     <h3 class="mb-3">Estados registrados</h3>
     <h6 class="text-right font-weight-light">
-        <a href="{{ url_for('create_status') }}">Crear estado</a>
+        <a href="{{ url_for('statuses.create_status') }}">Crear estado</a>
     </h6>
 
     {% for stat in statuses %}

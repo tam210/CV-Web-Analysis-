@@ -2,7 +2,7 @@
 {% block content %}
     <h3>Candidatos registrados</h3>
     <h6 class="text-right font-weight-light">
-        <a href="{{ url_for('create_candidate') }}">Registra un nuevo candidato--------------------------</a>
+        <a href="{{ url_for('candidates.create_candidate') }}">Registra un nuevo candidato--------------------------</a>
     </h6>
 
     <div class="input-group mb-4">
@@ -56,12 +56,12 @@
         <article class="media content-section">
             <div class="media-body">
             <div class="article-metadata">
-                <a class="mr-2" href="{{ url_for('candidates', category_id=candidate.category.id, page=page_num) }}">{{ candidate.category.name }}</a>
+                <a class="mr-2" href="{{ url_for('candidates.candidates', category_id=candidate.category.id, page=page_num) }}">{{ candidate.category.name }}</a>
                 <small class="text-muted">{{ candidate.status.name }}</small>
                 <small class="text-muted ml-2">Registrado el {{ candidate.creation_date.strftime('%Y-%m-%d') }}</small>
             </div>
             <h2>
-                <a class="article-title" href="{{ url_for('candidate', candidate_id=candidate.id) }}">{{ candidate.name }}</a>
+                <a class="article-title" href="{{ url_for('candidates.candidate', candidate_id=candidate.id) }}">{{ candidate.name }}</a>
             </h2>
             <p class="article-content">{{ candidate.description }}</p>
         </div>

@@ -3,7 +3,7 @@
 
     <h3 class="mb-3">Usuarios registrados</h3>
     <h6 class="text-right font-weight-light">
-        <a href="{{ url_for('create_candidate') }}">Registrar nuevo candidato</a>
+        <a href="{{ url_for('candidates.create_candidate') }}">Registrar nuevo candidato</a>
     </h6>
 
     {% for user in users %}

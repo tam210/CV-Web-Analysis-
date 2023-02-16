@@ -241,3 +241,8 @@ li span {
   background-color: #5ec74a;
   color: white;
 }
+
+.btn-smalli{
+  height: 3px;
+  justify-content: center;
+}
