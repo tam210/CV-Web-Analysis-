@@ -53,20 +53,18 @@ def inicialize():
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
-    offers = db.relationship('Offer', backref='category', lazy='dynamic') #fk
-    candidates_cat = db.relationship('Candidate', backref='category', lazy='dynamic')
+    offers = db.relationship('Offer', backref='category', lazy='dynamic')  #
+    candidates_cat = db.relationship('Candidate', backref='category', lazy='dynamic') #
 
     def __repr__(self): ##como nuestro objeto es impreso
         return f"Category ('{self.name}', '{self.id}')"
-
-
 
 class Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     classification = db.Column(db.String(50), nullable=False)
-    offers = db.relationship('Offer', backref='status') #fk
-    candidates = db.relationship('Postulation', back_populates="status")
+    offers = db.relationship('Offer', backref='status') #
+    candidates = db.relationship('Postulation', back_populates="status") #
 
     def __repr__(self): 
         return f"Status ('{self.name}', '{self.classification}' )"
@@ -117,10 +115,10 @@ class User(db.Model, UserMixin):
     username = db.Column(db.Integer, unique=True, nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     type = db.Column(db.Integer, db.ForeignKey('type.id'))
-    candidates = db.relationship('Candidate', secondary=candidate_user, backref='users')
-    categories = db.relationship('Category', secondary=category_user, backref='users')
-    offers = db.relationship('Offer', backref='user', lazy='dynamic') #fk
-    email = db.relationship('E_mail', uselist=False, cascade='all,delete', backref='user')
+    candidates = db.relationship('Candidate', secondary=candidate_user, backref='users')#
+    categories = db.relationship('Category', secondary=category_user, backref='users')#
+    offers = db.relationship('Offer', backref='user', lazy='dynamic') #
+    email = db.relationship('E_mail', uselist=False, cascade='all,delete', backref='user')#
 
     def __repr__(self): ##como nuestro objeto es impreso
         return f"User('Id: {self.id}', Name: '{self.name}', Password: '{self.password}', Email: '{self.email}', Username: '{self.username}', Date: '{self.creation_date}', Type'{self.type}')"
@@ -164,6 +162,7 @@ class Postulation(db.Model):
     offer_id = db.Column(db.Integer, db.ForeignKey('offer.id', ondelete='CASCADE'))
     candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE'))
     status_id = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'))
+    
     offer = db.relationship('Offer', backref='postulations')
     candidate = db.relationship('Candidate', backref='postulations')
     status = db.relationship('Status', backref='postulations')

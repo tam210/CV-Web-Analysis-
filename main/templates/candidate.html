@@ -21,7 +21,7 @@
     <h4>Postular candidato a ofertas</h4>
     <div class="container">
         <div class="col-md-4 row" >
-            <form method="post" id="multiple_select_form" action="{{ url_for('candidate', candidate_id=candidate.id) }}">
+            <form method="post" id="multiple_select_form" action="{{ url_for('candidates.candidate', candidate_id=candidate.id) }}">
             <select name="skills" id="skills" class="form-control selectpicker" data-live-search="true" multiple>
                 {% for of in offers %}
                     {% if of.category == candidate.category%}
@@ -42,7 +42,7 @@
                 <small class="text-muted ml-2">Registrado el {{ candidate.creation_date.strftime('%Y-%m-%d') }}</small>
                 {% if current_user in candidate.users %}                
                     <div>
-                        <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('update_candidate', candidate_id=candidate.id) }}">Actualizar</a>
+                        <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('candidates.update_candidate', candidate_id=candidate.id) }}">Actualizar</a>
                         <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
                     </div>
                 {% endif %}
@@ -86,7 +86,7 @@
                     {% if candidate_postulations[0] %}
                         {% for postulation in candidate_postulations %}
                         <li class="more">
-                            <a href="{{ url_for('offer', offer_id=postulation.offer_id) }}">{{postulation.offer.name}}</a>
+                            <a href="{{ url_for('offers.offer', offer_id=postulation.offer_id) }}">{{postulation.offer.name}}</a>
                             - Estado: {{ postulation.status.name }}
                         </li>                    
                         {% endfor %}
@@ -98,7 +98,7 @@
 
 
             {% if candidate.file %}
-                <a class="mr-2" href="{{ url_for('analysis', file=candidate.file) }}">Generar análisis</a>
+                <a class="mr-2" href="{{ url_for('analysis.analysis', file=candidate.file) }}">Generar análisis</a>
                 
                 <div>
                     <div class="col-md-12 px-0 mt-5">
@@ -161,7 +161,7 @@
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            <form action="{{ url_for('delete_candidate', candidate_id=candidate.id) }}" method="POST">
+            <form action="{{ url_for('candidates.delete_candidate', candidate_id=candidate.id) }}" method="POST">
                 <input class="btn btn-danger" type="submit" value="Delete">
             </form>
             </div>

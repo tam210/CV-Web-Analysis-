@@ -1,7 +1,7 @@
 {% extends "layout.html" %} {% block content %}
 <h3>Ofertas registradas</h3>
 <h6 class="text-right font-weight-light">
-  <a href="{{ url_for('create_offer') }}">Crear oferta</a>
+  <a href="{{ url_for('offers.create_offer') }}">Crear oferta</a>
 </h6>
 
 <div class="input-group">
@@ -67,7 +67,7 @@
           <small class="text-muted ml-2">Registrado el {{ offer.creation_date.strftime('%Y-%m-%d') }}</small>
         </div>
         <h2 id="name_offer">
-          <a class="article-title" href="{{ url_for('offer', offer_id=offer.id) }}">{{ offer.name }}</a>
+          <a class="article-title" href="{{ url_for('offers.offer', offer_id=offer.id) }}">{{ offer.name }}</a>
         </h2>
         <p class="article-content">{{ offer.description }}</p>
       </div>

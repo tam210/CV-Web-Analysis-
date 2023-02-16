@@ -4,7 +4,7 @@
     <h4 >Postular candidatos a la oferta</h4>
     <div class="container">
         <div class="col-md-4 row" >
-            <form method="post" id="multiple_select_form" action="{{ url_for('offer', offer_id=offer.id) }}">
+            <form method="post" id="multiple_select_form" action="{{ url_for('offers.offer', offer_id=offer.id) }}">
             <select name="skills" id="skills" class="form-control selectpicker" data-live-search="true" multiple>
                 {% for candidate in candidates %}
                     {% if candidate.category == offer.category%}
@@ -27,7 +27,7 @@
                 <small class="text-muted ml-2">Registrado el {{ offer.creation_date.strftime('%Y-%m-%d') }}</small>
                 {% if current_user == offer.user %}                
                     <div>
-                        <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('update_offer', offer_id=offer.id) }}">Actualizar</a>
+                        <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('offers.update_offer', offer_id=offer.id) }}">Actualizar</a>
                         <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
                     </div>
                 {% endif %}
@@ -45,7 +45,7 @@
 
                                 <div class="parent-align-hor">
                                     <div class="child-align-hor">
-                                        <a href="{{ url_for('candidate', candidate_id=postulation.candidate_id) }}">{{postulation.candidate.name}}</a>
+                                        <a href="{{ url_for('candidates.candidate', candidate_id=postulation.candidate_id) }}">{{postulation.candidate.name}}</a>
                                     </div>
                                     <div class="child-align-hor" >
                                         <form method="post" id="simple_select_form" action="">
@@ -88,7 +88,7 @@
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            <form action="{{ url_for('delete_offer', offer_id=offer.id) }}" method="POST">
+            <form action="{{ url_for('offers.delete_offer', offer_id=offer.id) }}" method="POST">
                 <input class="btn btn-danger" type="submit" value="Delete">
             </form>
             </div>
