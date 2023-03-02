@@ -13,7 +13,7 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
 - [ ] Extraer email de un archivo PDF
 - [ ] Extraer contacto de un archivo PDF
 - [ ] Análisis cualitativo de un archivo PDF
-
+- - [ ]
 - [ ] Crear, visualizar, actualizar y eliminar un usuario
 - [ ] Crear, visualizar, actualizar y eliminar una categoría
 - [ ] Crear, visualizar, actualizar y eliminar un estado
