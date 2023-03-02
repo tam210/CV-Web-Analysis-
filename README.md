@@ -9,11 +9,28 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
 - [x] Diseño y creación de la base de datos
 - [x] Creación de las clases de los modelos
 - [x] Vistas de la aplicación
+  - [x] Registrar candidato
+  - [x] Registrar categoría
+  - [x] Registrar estado
+  - [x] Registrar oferta
+  - [x] Registrar usuario
+  - [x] Ofertas
+  - [x] Candidatos
+  - [x] Estados
+  - [x] Categorías
+  - [x] Usuarios
+  - [x] Analizar documento
+  - [x] Iniciar sesión
+  - [x] Registrarse
+  - [x] Subir archivo
+  - [x] Menú de la oferta
+  - [x] Menú del candidato
 - [x] Registro/inicio de sesión
-- [x] Extraer email de un archivo PDF
-- [x] Extraer contacto de un archivo PDF
 - [x] Análisis cualitativo de un archivo PDF
-  - [x] a
+  - [x] Instalación de librerías
+  - [x] Construir diccionario con palabras clave
+  - [x] Extraer email de un archivo PDF
+  - [x] Extraer contacto de un archivo PDF
 - [x] Crear, visualizar, actualizar y eliminar un usuario
 - [x] Crear, visualizar, actualizar y eliminar una categoría
 - [x] Crear, visualizar, actualizar y eliminar un estado
