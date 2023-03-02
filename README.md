@@ -37,11 +37,12 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
   - [x] Estado
   - [x] Oferta
   - [x] Candidato 
-- [x] Visualizar usuarios totales
-- [x] Visualizar categorías totales
-- [x] Visualizar estados totales
-- [x] Visualizar ofertas totales
-- [x] Visualizar candidatos totales
+- [x] Visualizar
+  - [x] Visualizar usuarios totales
+  - [x] Categorías totales
+  - [x] Estados totales
+  - [x] Ofertas totales
+  - [x] Candidatos totales
 - [x] Agregar contacto y email extraído al candidato
 - [x] Dropdown con búsqueda y múltiple selección (backend)
 - [x] Dropdown con búsqueda y múltiple selección (frontend)
