@@ -20,8 +20,8 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
   - [x] Categorías
   - [x] Usuarios
   - [x] Analizar documento
-  - [x] Iniciar sesión
-  - [x] Registrarse
+  - [x] Inicio sesión
+  - [x] Registro
   - [x] Subir archivo
   - [x] Menú de la oferta
   - [x] Menú del candidato
@@ -31,17 +31,17 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
   - [x] Construir diccionario con palabras clave
   - [x] Extraer email de un archivo PDF
   - [x] Extraer contacto de un archivo PDF
-- [x] Crear, visualizar, actualizar y eliminar un usuario
-- [x] Crear, visualizar, actualizar y eliminar una categoría
-- [x] Crear, visualizar, actualizar y eliminar un estado
-- [x] Crear, visualizar, actualizar y eliminar una oferta
-- [x] Crear, visualizar, actualizar y eliminar un candidato
+- [x] Crear, visualizar, actualizar y eliminar
+  - [x] Usuario
+  - [x] Categoría
+  - [x] Estado
+  - [x] Oferta
+  - [x] Candidato 
 - [x] Visualizar usuarios totales
 - [x] Visualizar categorías totales
 - [x] Visualizar estados totales
 - [x] Visualizar ofertas totales
 - [x] Visualizar candidatos totales
-- [x] Filtro: Búsqueda por texto
 - [x] Agregar contacto y email extraído al candidato
 - [x] Dropdown con búsqueda y múltiple selección (backend)
 - [x] Dropdown con búsqueda y múltiple selección (frontend)
@@ -49,10 +49,16 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
 - [x] Asociar oferta a un candidato a través del dropdown en el panel del candidato
 - [x] Desplegar ofertas postuladas de un candidato
 - [x] Desplegar candidatos postulados a una oferta
-- [ ] 
+- [x] Filtro: Búsqueda reactiva de oferta/candidato por texto
+- [x] Filtro: Búsqueda de oferta/candidato por categoría
 
 ## Tareas por completar
-- [ ] asd
+- [ ] Corregir diccionario
+- [ ] Diccionario de keywords según categoría
+- [ ] Menú para enviar correo con contenido prediseñado
+- [ ] Corrección de errores
+- [ ] Unit Testing
+- [ ] Despliegue de producción
 
 ## Modelo del ciclo de vida
 
