@@ -58,7 +58,7 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
 - [ ] Menú para enviar correo con contenido prediseñado
 - [ ] Corrección de errores
 - [ ] Unit Testing
-- [ ] Despliegue de producción
+- [ ] Despliegue de código en producción
 
 ## Modelo del ciclo de vida
 
