@@ -60,6 +60,7 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 @users_bp.route("/logout")
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('candidates.home'))
@@ -72,6 +73,7 @@ def account():
     return render_template('account.html', title='Account')
 
 @users_bp.route("/users", methods=['GET', 'POST'])
+@login_required
 def users():
     users = User.query.all()
     return render_template('users.html', title='Usuarios', 

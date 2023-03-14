@@ -246,3 +246,13 @@ li span {
   height: 3px;
   justify-content: center;
 }
+.img-home{
+  opacity: 0.5;
+  width: 40%;
+
+}
+.img-panel{
+  opacity: 0.5;
+  width: 70%;
+  margin-top: 3px;
+}

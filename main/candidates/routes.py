@@ -11,9 +11,8 @@ from main.main.utils import NAMETYPE_USER_CANDIDATE
 
 candidates_bp = Blueprint('candidates', __name__)
 
-@candidates_bp.route("/", methods=['GET', 'POST'])
-@candidates_bp.route("/home", methods=['GET', 'POST'])
 @candidates_bp.route("/candidates", methods=['GET', 'POST'])
+@login_required
 def home():
     inicialize()
     page = request.args.get('page', 1, type=int) #default=1
@@ -64,10 +63,11 @@ def home():
     type: el tipo que debe tener la página, así se evitan strings u otro
     """
     #Candidates = Candidate.query.all()
-    return render_template('home.html', title='Candidatos', legend='Candidatos', candidates=candidates, form=form)
+    return render_template('candidates.html', title='Candidatos', legend='Candidatos', candidates=candidates, form=form)
 
 
 @candidates_bp.route("/candidates/category/<int:category_id>", methods=['GET', 'POST'])
+@login_required
 def candidates(category_id):
     #page = request.args.get('page', 1, type=int) #default=1
     if not category_id:
@@ -174,6 +174,7 @@ def create_candidate():
 
 
 @candidates_bp.route("/candidates/<int:candidate_id>", methods=['GET', 'POST'])
+@login_required
 def candidate(candidate_id):
     candidate = Candidate.query.get_or_404(candidate_id)
     #dame el Candidate y si no existe, retorna 404 (no existe pagina)

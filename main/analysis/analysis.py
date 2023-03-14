@@ -1,11 +1,13 @@
-import pytesseract
+# import pytesseract
+from pdfminer.high_level import extract_text
+
 import glob
 import re
 import string
 import pandas as pd
 import matplotlib.pyplot as plt
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'
 
 terms = {#'Pensamiento crítico y resolutivo':[],      
         #'Colaboración y trabajo en equipo':[],
@@ -36,7 +38,7 @@ terms = {#'Pensamiento crítico y resolutivo':[],
                                     'respetuoso', 'respetuosa', 'respeto', 'comunicación efectiva', 'atento', 'diligente',
                                     'atenta', ],
 
-        'Habilidades profesionales':['iniciativa', 'integridad', 'integro','íntegra', 'liderazgo',
+        'Habilidades personales':['iniciativa', 'integridad', 'integro','íntegra', 'liderazgo',
                             'flexibilidad', 'flexible', 'persistente', 'persistencia',
                             'organización', 'organizado', 'organizada', 'comunicación oral y escrita', 'bilingue',
                             'inclusivo', 'inclusiva', 'resolución de conflictos', 'metas',
@@ -53,11 +55,8 @@ terms = {#'Pensamiento crítico y resolutivo':[],
                         'estrategias de disciplina', 'gestión de disciplina', 'evaluación educativa',
                         'pei', 'metodologías de enseñanza', 'tecnología educativa', 'apoyo al estudiante',
                         'instrucción en el aula', 'interdisciplinario', 'enseñanza didáctica', 'enseñanza lúdica',
-                        'lúdica', 'lúdico', 'didáctica', 'didáctico', 'tutelado', ]}
-
-
-
-
+                        'lúdica', 'lúdico', 'didáctica', 'didáctico', 'tutelado', ]
+                        }
 
 
 
@@ -90,22 +89,22 @@ def getPhoneNumber(text):
     return e[0]
 
 def getText(file):
-    ruta = "main/static/files/"+file
-    images = glob.glob(ruta)
-    image_text = ""
-    for img in images:
-        image_text = pytesseract.image_to_string(img)
+    try:
+        ruta = "main/static/files/"+file
+        text = extract_text(ruta)
+        image_text = text
+        image_text = image_text.replace('\n',' ')
+        image_text = image_text.replace('  ',' ')
+        text_phone = image_text    
+        image_text = re.sub(r'\d+','',image_text) #quito números
+        image_text_email = image_text
+        image_text = image_text.lower() #####
+        image_text = image_text.translate(str.maketrans('','',string.punctuation))
+        text = image_text
 
-    image_text = image_text.replace('\n',' ')
-    image_text = image_text.replace('  ',' ')
-    text_phone = image_text    
-    image_text = re.sub(r'\d+','',image_text) #quito números
-    image_text_email = image_text
-    image_text = image_text.lower() #####
-    image_text = image_text.translate(str.maketrans('','',string.punctuation))
-    text = image_text
-
-    return text, image_text_email, text_phone
+        return text, image_text_email, text_phone
+    except:
+        print("Hubo un error >_<")
 
 def getRessumeDF(text):
     quality = 0
@@ -172,9 +171,14 @@ def getRessumeDF(text):
 
 
 def obtenerDF_Email(file):
-    text, text_email, text_phone = getText(file)
-    dataframe = getRessumeDF(text)
-    email = getEmail(text_email)
-    phone = getPhoneNumber(text_phone)
-    #print("\n\n",phone,"\n\n")
-    return dataframe, email, phone
+    # Si el archivo es pdf
+    # if(file)
+    try:
+        text, text_email, text_phone = getText(file)
+        dataframe = getRessumeDF(text)
+        email = getEmail(text_email)
+        phone = getPhoneNumber(text_phone)
+        #print("\n\n",phone,"\n\n")
+        return dataframe, email, phone
+    except:
+        print("Error")
