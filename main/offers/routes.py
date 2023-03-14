@@ -33,6 +33,7 @@ def create_offer():
                             form=form, legend='Registrar oferta')
 #home 2
 @offers_bp.route("/offers", methods=['GET', 'POST'])
+@login_required
 def offers():
     #cambio variable global
     form = CategoriesStatusesForm()    
@@ -70,6 +71,7 @@ def offers():
                             offers=offers, legend='Ofertas', form=form)
 
 @offers_bp.route("/offers/<int:offer_id>", methods=['GET', 'POST'])
+@login_required
 def offer(offer_id):
     candidates = Candidate.query.all()
     offer = Offer.query.get_or_404(offer_id)

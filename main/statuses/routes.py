@@ -8,12 +8,14 @@ statuses_bp = Blueprint('statuses', __name__)
 
 
 @statuses_bp.route("/status", methods=['GET', 'POST'])
+@login_required
 def status():
     statuses = Status.query.all()
     return render_template('status.html', title='Estados', 
                             statuses=statuses, legend='Estados')
 
 @statuses_bp.route("/status/new", methods=['GET', 'POST'])
+@login_required
 def create_status():
     form = StateForm()
     if form.validate_on_submit():

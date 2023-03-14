@@ -36,9 +36,12 @@ from main.offers.routes import offers_bp
 
 from main.statuses.routes import statuses_bp
 
+from main.home.routes import home_bp
+
 app.register_blueprint(users_bp)
 app.register_blueprint(analysis_bp)
 app.register_blueprint(candidates_bp)
 app.register_blueprint(categories_bp)
 app.register_blueprint(offers_bp)
 app.register_blueprint(statuses_bp)
+app.register_blueprint(home_bp)

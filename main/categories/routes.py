@@ -7,6 +7,7 @@ from flask_login import login_required
 categories_bp = Blueprint('categories', __name__)
 
 @categories_bp.route("/category/new", methods=['GET', 'POST'])
+@login_required
 def create_category():
     form = CategoryForm()
     if form.validate_on_submit():
@@ -19,6 +20,7 @@ def create_category():
                             form=form, legend='Ingresar nueva categoría')
 
 @categories_bp.route("/categories", methods=['GET', 'POST'])
+@login_required
 def categories():
     categories = Category.query.all()
     return render_template('categories.html', title='Categorías', 

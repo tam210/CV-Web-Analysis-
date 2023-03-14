@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.4.6/jscolor.min.js"></script>
 
     <!-- Prueba dropdown -->
     <!-- <link rel="stylesheet" href="dist/virtual-select.min.css" /> -->
@@ -72,10 +73,11 @@
 
             {% block content %}{% endblock %}
         </div>
+        {% if current_user.is_authenticated %}
         <div class="col-md-4">
-          <div class="content-section">
-            <h3>Utilidades</h3>
-            <p class='text-muted'>Conoce el estado general del sistema.
+          <div class="content-section-utilidad">
+            <h3 class="utilidades-header">Utilidades</h3>
+            <p class='utilidades-header'>Conoce el menú del sistema
               <ul class="list-group">
                 <li class="list-group-item list-group-item-light">
                   <a href="/users" class="link-secondary">Usuarios</a>
@@ -96,6 +98,14 @@
             </p>
           </div>
         </div>
+        {% else %}
+        <div class="col-md-4">
+          <div>
+            <br><br><br><br><br>
+            <img src="./static/files/cvv.png" class="img-panel mx-auto d-block">
+          </div>
+        </div>
+        {% endif %}
       </div>
     </main>
 

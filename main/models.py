@@ -15,11 +15,9 @@ def inicialize():
         #-------------------------------------------
         ob1 = Status(name='Activo',classification='Trabajo')
         ob2 = Status(name='Finalizado',classification='Trabajo')
-
         ob3 = Status(name='Rechazado',classification='Candidato')
         ob4 = Status(name='En evaluación',classification='Candidato')
         ob5 = Status(name='Aprobado',classification='Candidato')
-
         obs6 = Category(name='Finanzas')
         obs7 = Category(name='RRHH')
         obs8 = Category(name='Educación')
@@ -28,43 +26,36 @@ def inicialize():
         #ob5 = Status(name='Indefinido',classification='Candidato')
         #ob2 = Status(name='Indefinido',classification='Trabajo')
 
-
         type_1 = Type(nametype='Candidato')
         type_2 = Type(nametype='Administrador')
         type_3 = Type(nametype='Usuario')
         db.session.add_all([ob1,ob2, ob3, ob4, ob5, obs6, obs7, obs8, obs9, type_1, type_2, type_3])
         db.session.commit()
-        #-------------------------------------------
-        # Ingreso un administrador a BD
-        #-------------------------------------------
-
-        #-------------------------------------------
-        # Le asocio un email una vez ingresado el admin en el sistema vía commit
-        # (ya que si no está en el sistema su id es None, por lo tanto
-        # al hacer user_id=admin.id estaría en None)
-        #-------------------------------------------
-
-
         print('Inserción inicial')
 
     else:
         print("Ya existen elementos iniciales")
 
+
+
+
+
+
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
-    offers = db.relationship('Offer', backref='category', lazy='dynamic')  #
-    candidates_cat = db.relationship('Candidate', backref='category', lazy='dynamic') #
+    offers = db.relationship('Offer', backref='category', lazy='dynamic') ##HAS RELATIONSHIP##
+    candidates_cat = db.relationship('Candidate', backref='category', lazy='dynamic')  ##HAS RELATIONSHIP##
 
-    def __repr__(self): ##como nuestro objeto es impreso
+    def __repr__(self): #cómo nuestro objeto es impreso
         return f"Category ('{self.name}', '{self.id}')"
 
 class Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     classification = db.Column(db.String(50), nullable=False)
-    offers = db.relationship('Offer', backref='status') #
-    candidates = db.relationship('Postulation', back_populates="status") #
+    offers = db.relationship('Offer', backref='status')   ##HAS RELATIONSHIP##
+    candidates = db.relationship('Postulation', back_populates="status")  ##HAS RELATIONSHIP##
 
     def __repr__(self): 
         return f"Status ('{self.name}', '{self.classification}' )"
@@ -72,15 +63,15 @@ class Status(db.Model):
 
 class Candidate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.Integer, db.ForeignKey('type.id'))
+    type = db.Column(db.Integer, db.ForeignKey('type.id')) ##HAS RELATIONSHIP##
     name = db.Column(db.String(50), nullable=False)
     file = db.Column(db.String(20))
     description = db.Column(db.String(50), nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-    emails = db.relationship('E_mail', backref='candidate', lazy='dynamic', cascade='save-update, merge, delete') #fk
-    phones = db.relationship('Phone', backref='candidate', lazy='dynamic', cascade='save-update, merge, delete') #fk
-    offers = db.relationship('Postulation', back_populates="candidate", lazy='dynamic', cascade='save-update, merge, delete')
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id')) ##HAS RELATIONSHIP##
+    emails = db.relationship('E_mail', backref='candidate', lazy='dynamic', cascade='save-update, merge, delete') ##HAS RELATIONSHIP#
+    phones = db.relationship('Phone', backref='candidate', lazy='dynamic', cascade='save-update, merge, delete') ##HAS RELATIONSHIP##
+    offers = db.relationship('Postulation', back_populates="candidate", lazy='dynamic', cascade='save-update, merge, delete')##HAS RELATIONSHIP##
 
     def __repr__(self): ##como nuestro objeto es impreso
         return f"Candidate ('{self.id}', '{self.name}', '{self.file}', '{self.description}', '{self.creation_date}'. '{self.type}','{self.category_id}')"
@@ -98,12 +89,12 @@ candidate_user = db.Table('candidate_user',
 class Offer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id')) #
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #creador del empleo
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id')) ##HAS RELATIONSHIP##
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  ##HAS RELATIONSHIP##
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id'))   ##HAS RELATIONSHIP##
     description = db.Column(db.String(50), nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    candidates = db.relationship('Postulation', back_populates="offer", lazy='dynamic', cascade='save-update, merge, delete')
+    candidates = db.relationship('Postulation', back_populates="offer", lazy='dynamic', cascade='save-update, merge, delete') #HAS RELATIONSHIP##
     def __repr__(self):
         return f"Offer('{self.id}', '{self.name}', '{self.category_id}', '{self.user_id}', '{self.status_id}', '{self.description}', '{self.creation_date}','{self.category_id}','{self.status_id}')"
 
@@ -114,11 +105,11 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(50), nullable=False)
     username = db.Column(db.Integer, unique=True, nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    type = db.Column(db.Integer, db.ForeignKey('type.id'))
-    candidates = db.relationship('Candidate', secondary=candidate_user, backref='users')#
-    categories = db.relationship('Category', secondary=category_user, backref='users')#
-    offers = db.relationship('Offer', backref='user', lazy='dynamic') #
-    email = db.relationship('E_mail', uselist=False, cascade='all,delete', backref='user')#
+    type = db.Column(db.Integer, db.ForeignKey('type.id'))  ##HAS RELATIONSHIP##
+    candidates = db.relationship('Candidate', secondary=candidate_user, backref='users') ##HAS RELATIONSHIP##
+    categories = db.relationship('Category', secondary=category_user, backref='users') ##HAS RELATIONSHIP
+    offers = db.relationship('Offer', backref='user', lazy='dynamic')  ##HAS RELATIONSHIP##
+    email = db.relationship('E_mail', uselist=False, cascade='all,delete', backref='user') ##HAS RELATIONSHIP##
 
     def __repr__(self): ##como nuestro objeto es impreso
         return f"User('Id: {self.id}', Name: '{self.name}', Password: '{self.password}', Email: '{self.email}', Username: '{self.username}', Date: '{self.creation_date}', Type'{self.type}')"
@@ -128,8 +119,8 @@ class User(db.Model, UserMixin):
 class E_mail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE'), nullable=True) #fk
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE'), nullable=True) ##HAS RELATIONSHIP#
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))##HAS RELATIONSHIP##
     extracted_y_n = db.Column(db.String(5), nullable=False)
 
     def __repr__(self):
@@ -139,8 +130,8 @@ class E_mail(db.Model):
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nametype = db.Column(db.String(50), nullable=False, unique=True)
-    users = db.relationship('User', backref='type_user', lazy='dynamic')
-    candidates = db.relationship('Candidate', backref='type_candidate', lazy='dynamic')
+    users = db.relationship('User', backref='type_user', lazy='dynamic')  ##HAS RELATIONSHIP##
+    candidates = db.relationship('Candidate', backref='type_candidate', lazy='dynamic')  ##HAS RELATIONSHIP##
 
     def __repr__(self):
         return f"Type('{self.id}', '{self.nametype}')"
@@ -149,7 +140,7 @@ class Type(db.Model):
 class Phone(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Integer, nullable=False, unique=True)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE')) #
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE')) ##HAS RELATIONSHIP##
     extracted_y_n = db.Column(db.String(5), nullable=False)
 
     def __repr__(self):
@@ -159,12 +150,13 @@ class Phone(db.Model):
 class Postulation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    offer_id = db.Column(db.Integer, db.ForeignKey('offer.id', ondelete='CASCADE'))
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE'))
-    status_id = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'))
+    offer_id = db.Column(db.Integer, db.ForeignKey('offer.id', ondelete='CASCADE'))#HAS RELATIONSHIP##
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id', ondelete='CASCADE'))##HAS RELATIONSHIP##
+    status_id = db.Column(db.Integer, db.ForeignKey('status.id', ondelete='CASCADE'))##HAS RELATIONSHIP##
     
     offer = db.relationship('Offer', backref='postulations')
     candidate = db.relationship('Candidate', backref='postulations')
-    status = db.relationship('Status', backref='postulations')
+    status = db.relationship('Status', backref='postulations') 
+
     def __repr__(self):
         return f"Postulation('ID: '{self.id}', Offer_id: {self.offer_id}', Candidate_id: '{self.candidate_id}', Status_id: '{self.status_id}')"
