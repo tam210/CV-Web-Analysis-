@@ -54,13 +54,9 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
 - [x] Filtro: Búsqueda de oferta/candidato por categoría
 
 ## Tareas por completar
-- [ ] Corregir diccionario
 - [ ] Asociar color a categoría
 - [ ] Diccionario de keywords según categoría
 - [ ] Menú para enviar correo con contenido prediseñado
-- [ ] Corrección de errores
-- [ ] Unit Testing
-- [ ] Despliegue de código en producción
 
 ## Modelo del ciclo de vida
 
