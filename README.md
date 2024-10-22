@@ -58,6 +58,10 @@ El software web se desarrolla a través de microframework Flask en Python, HTML 
 - [ ] Diccionario de keywords según categoría
 - [ ] Menú para enviar correo con contenido prediseñado
 
+## Modelo de base de datos
+
+![Modelo BD](assets/cv-bd.png)
+
 ## Modelo del ciclo de vida
 
 Se utilizó la metodología incremental, incorporando nuevas funcionalidades al producto de manera progresiva en periodos usualmente semanales.
