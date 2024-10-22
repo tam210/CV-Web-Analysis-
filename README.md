@@ -3,6 +3,8 @@ El presente proyecto tiene como finalidad facilitar la administración, seguimie
 <br>
 El software web se desarrolla a través de microframework Flask en Python, HTML y CSS en el IDE Visual Studio Code.
 
+![Vista principal](assets/cv-app.png)
+
 ## Tareas completadas
 - [x] Recopilación de requisitos
 - [x] Backlog del proyecto 
